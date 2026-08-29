@@ -1,11 +1,19 @@
+/* ============================================================
+   AIRWISE — PREMIUM NAVBAR
+============================================================ */
+
 .airwise-navbar {
-  height: 72px;
+  position: sticky;
 
-  padding: 0 6%;
+  top: 0;
 
-  background: #ffffff;
+  z-index: 1000;
 
-  border-bottom: 1px solid #e5e7eb;
+  min-height: 74px;
+
+  width: 100%;
+
+  padding: 0 5%;
 
   display: flex;
 
@@ -13,11 +21,24 @@
 
   justify-content: space-between;
 
-  position: sticky;
+  gap: 24px;
 
-  top: 0;
+  box-sizing: border-box;
 
-  z-index: 1000;
+  background:
+    rgba(7, 17, 31, 0.96);
+
+  border-bottom:
+    1px solid
+    rgba(148, 163, 184, 0.10);
+
+  backdrop-filter: blur(18px);
+
+  -webkit-backdrop-filter: blur(18px);
+
+  box-shadow:
+    0 8px 30px
+    rgba(0, 0, 0, 0.14);
 }
 
 
@@ -32,16 +53,20 @@
 
   gap: 11px;
 
-  text-decoration: none;
+  flex-shrink: 0;
 
-  color: #14213d;
+  color: #ffffff;
+
+  text-decoration: none;
 }
 
-.logo-icon {
-  width: 40px;
-  height: 40px;
 
-  border-radius: 9px;
+.logo-icon {
+  position: relative;
+
+  width: 40px;
+
+  height: 40px;
 
   display: flex;
 
@@ -49,36 +74,76 @@
 
   justify-content: center;
 
-  background: #14213d;
+  border:
+    1px solid
+    rgba(34, 211, 238, 0.20);
 
-  color: white;
+  border-radius: 10px;
 
-  font-size: 20px;
+  background:
+    linear-gradient(
+      135deg,
+      #183453,
+      #0d2036
+    );
+
+  color: #67e8f9;
+
+  font-size: 19px;
 
   font-weight: 900;
+
+  box-shadow:
+    0 0 20px
+    rgba(34, 211, 238, 0.06);
 }
+
+
+.logo-icon::after {
+  content: "";
+
+  position: absolute;
+
+  inset: 5px;
+
+  border:
+    1px solid
+    rgba(34, 211, 238, 0.07);
+
+  border-radius: 7px;
+}
+
 
 .logo-text strong {
   display: block;
 
+  color: #f8fafc;
+
   font-size: 18px;
 
-  letter-spacing: 1px;
+  line-height: 1;
+
+  letter-spacing: 1.4px;
 }
+
 
 .logo-text span {
   display: block;
 
-  margin-top: 2px;
+  margin-top: 4px;
 
-  color: #64748b;
+  color: #617995;
 
-  font-size: 10px;
+  font-size: 8px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.7px;
 }
 
 
 /* ============================================================
-   NAV LINKS
+   NAVIGATION
 ============================================================ */
 
 .airwise-nav-links {
@@ -86,182 +151,403 @@
 
   align-items: center;
 
-  gap: 8px;
+  justify-content: center;
+
+  gap: 6px;
+
+  flex: 1;
 }
+
 
 .nav-link {
   position: relative;
 
-  padding: 9px 13px;
+  display: inline-flex;
 
-  border-radius: 7px;
+  align-items: center;
 
-  color: #64748b;
+  justify-content: center;
+
+  gap: 8px;
+
+  padding: 11px 14px;
+
+  border:
+    1px solid
+    transparent;
+
+  border-radius: 9px;
+
+  color: #8ca1b9;
 
   text-decoration: none;
 
   font-size: 13px;
 
-  font-weight: 700;
+  font-weight: 800;
+
+  letter-spacing: 0;
+
+  white-space: nowrap;
 
   transition:
     background 0.2s ease,
     color 0.2s ease,
+    border-color 0.2s ease,
     transform 0.2s ease;
 }
 
-.nav-link:hover {
-  background: #f1f5f9;
 
-  color: #14213d;
+.nav-link:hover {
+  background:
+    rgba(255, 255, 255, 0.04);
+
+  border-color:
+    rgba(148, 163, 184, 0.08);
+
+  color: #eef5fb;
 
   transform: translateY(-1px);
 }
 
-.nav-link.active {
-  background: #14213d;
 
-  color: white;
+.nav-link.active {
+  background:
+    linear-gradient(
+      135deg,
+      #183453,
+      #112842
+    );
+
+  border-color:
+    rgba(59, 130, 246, 0.20);
+
+  color: #ffffff;
 
   box-shadow:
-    0 4px 12px
-    rgba(20, 33, 61, 0.16);
+    0 7px 20px
+    rgba(0, 0, 0, 0.14);
+}
+
+
+.nav-link.active::after {
+  content: "";
+
+  position: absolute;
+
+  left: 50%;
+
+  bottom: -1px;
+
+  width: 25px;
+
+  height: 2px;
+
+  transform:
+    translateX(-50%);
+
+  border-radius: 20px;
+
+  background:
+    #22d3ee;
+
+  box-shadow:
+    0 0 8px
+    rgba(34, 211, 238, 0.45);
+}
+
+
+/* ============================================================
+   NAV ICON
+============================================================ */
+
+.nav-icon {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: 18px;
+
+  height: 18px;
+
+  color: inherit;
+
+  font-size: 15px;
+
+  line-height: 1;
 }
 
 
 /* ============================================================
    CPI NAVIGATION
-   CPI is highlighted because it connects AIRWISE to the
-   Airfare Price Index / CPI Augmentation section.
 ============================================================ */
 
-.airwise-nav-links .nav-link:nth-child(3) {
-  color: #2563eb;
-
-  font-weight: 900;
+.cpi-nav-link {
+  border-color:
+    rgba(34, 211, 238, 0.06);
 }
 
-.airwise-nav-links .nav-link:nth-child(3):hover {
-  background: #eff6ff;
 
-  color: #1d4ed8;
+.cpi-nav-link:hover {
+  color: #67e8f9;
+
+  border-color:
+    rgba(34, 211, 238, 0.12);
+
+  background:
+    rgba(34, 211, 238, 0.035);
 }
 
-.airwise-nav-links .nav-link:nth-child(3).active {
-  background: #14213d;
 
-  color: white;
+.cpi-nav-link.active {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(34, 211, 238, 0.11),
+      rgba(37, 99, 235, 0.14)
+    );
+
+  border-color:
+    rgba(34, 211, 238, 0.19);
+
+  color: #67e8f9;
+}
+
+
+.cpi-nav-link.active::after {
+  background:
+    #67e8f9;
 }
 
 
 /* ============================================================
-   CPI SMALL INDICATOR
+   CPI BADGE
 ============================================================ */
 
-.airwise-nav-links .nav-link:nth-child(3)::before {
-  content: "";
+.cpi-nav-badge {
+  display: inline-flex;
 
-  width: 5px;
+  align-items: center;
 
-  height: 5px;
+  justify-content: center;
 
-  display: inline-block;
+  min-width: 20px;
 
-  margin-right: 6px;
+  height: 17px;
 
-  margin-bottom: 2px;
+  padding: 0 5px;
+
+  box-sizing: border-box;
+
+  border:
+    1px solid
+    rgba(34, 211, 238, 0.10);
+
+  border-radius: 5px;
+
+  background:
+    rgba(34, 211, 238, 0.07);
+
+  color: #67e8f9;
+
+  font-size: 6px;
+
+  font-weight: 900;
+
+  letter-spacing: 0.5px;
+}
+
+
+/* ============================================================
+   SYSTEM STATUS
+============================================================ */
+
+.navbar-status {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  flex-shrink: 0;
+
+  padding: 8px 10px;
+
+  border:
+    1px solid
+    rgba(34, 197, 94, 0.11);
+
+  border-radius: 20px;
+
+  background:
+    rgba(34, 197, 94, 0.045);
+
+  color: #6c917e;
+
+  font-size: 7px;
+
+  font-weight: 900;
+
+  letter-spacing: 0.7px;
+
+  white-space: nowrap;
+}
+
+
+.navbar-status-dot {
+  width: 7px;
+
+  height: 7px;
 
   border-radius: 50%;
 
-  background: #2563eb;
-}
+  background:
+    #22c55e;
 
-.airwise-nav-links .nav-link:nth-child(3).active::before {
-  background: #ffffff;
-}
-
-
-/* ============================================================
-   ACTIVE UNDERLINE
-============================================================ */
-
-.nav-link:not(.active)::after {
-  content: "";
-
-  position: absolute;
-
-  left: 13px;
-
-  right: 13px;
-
-  bottom: 3px;
-
-  height: 2px;
-
-  border-radius: 2px;
-
-  background: #14213d;
-
-  transform: scaleX(0);
-
-  transform-origin: center;
-
-  transition:
-    transform 0.2s ease;
-}
-
-.nav-link:not(.active):hover::after {
-  transform: scaleX(1);
+  box-shadow:
+    0 0 10px
+    rgba(34, 197, 94, 0.65);
 }
 
 
 /* ============================================================
-   RESPONSIVE
+   RESPONSIVE — TABLET
 ============================================================ */
 
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
 
   .airwise-navbar {
-    padding: 0 4%;
+    padding: 0 3%;
+
+    gap: 14px;
   }
+
 
   .airwise-nav-links {
-    gap: 5px;
+    gap: 3px;
   }
 
-  .nav-link {
-    font-size: 12px;
 
-    padding: 8px 10px;
+  .nav-link {
+    padding: 10px 10px;
+
+    font-size: 11px;
+  }
+
+
+  .nav-icon {
+    width: 16px;
+
+    height: 16px;
+
+    font-size: 13px;
+  }
+
+
+  .navbar-status {
+    padding: 7px 8px;
+
+    font-size: 6px;
   }
 
 }
 
 
-@media (max-width: 700px) {
+/* ============================================================
+   RESPONSIVE — MOBILE
+============================================================ */
+
+@media (max-width: 760px) {
 
   .airwise-navbar {
-    height: auto;
+    min-height: auto;
 
-    padding: 15px 5%;
+    padding: 12px 4%;
 
-    flex-direction: column;
+    flex-wrap: wrap;
 
-    gap: 13px;
+    justify-content: center;
+
+    gap: 10px;
   }
+
+
+  .airwise-logo {
+    width: 100%;
+
+    justify-content: center;
+  }
+
 
   .airwise-nav-links {
     width: 100%;
 
+    flex-wrap: wrap;
+
     justify-content: center;
 
-    flex-wrap: wrap;
+    gap: 4px;
   }
 
-  .nav-link {
-    font-size: 12px;
 
-    padding: 8px 10px;
+  .nav-link {
+    padding: 9px 10px;
+
+    font-size: 10px;
+  }
+
+
+  .nav-icon {
+    font-size: 12px;
+  }
+
+
+  .navbar-status {
+    display: none;
+  }
+
+}
+
+
+/* ============================================================
+   RESPONSIVE — SMALL MOBILE
+============================================================ */
+
+@media (max-width: 480px) {
+
+  .logo-text strong {
+    font-size: 17px;
+  }
+
+
+  .logo-text span {
+    font-size: 7px;
+  }
+
+
+  .airwise-nav-links {
+    gap: 3px;
+  }
+
+
+  .nav-link {
+    padding: 8px 8px;
+
+    font-size: 9px;
+
+    gap: 5px;
+  }
+
+
+  .nav-icon {
+    display: none;
+  }
+
+
+  .cpi-nav-badge {
+    display: none;
   }
 
 }

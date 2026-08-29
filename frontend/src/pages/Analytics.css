@@ -1,76 +1,34 @@
+/* ============================================================
+   AIRWISE — ANALYTICS
+   PREMIUM DATA INTELLIGENCE UI
+============================================================ */
+
 .analytics-page {
   min-height: 100vh;
-  background: #f5f7fb;
-  color: #14213d;
+
+  background:
+    radial-gradient(
+      circle at 84% 4%,
+      rgba(59, 130, 246, 0.14),
+      transparent 24%
+    ),
+    radial-gradient(
+      circle at 10% 35%,
+      rgba(34, 211, 238, 0.04),
+      transparent 20%
+    ),
+    #07111f;
+
+  color: #f8fafc;
 }
 
-
-/* ============================================================
-   NAVBAR
-============================================================ */
-
-.analytics-navbar {
-  height: 76px;
-
-  padding: 0 6%;
-
-  background: white;
-
-  border-bottom: 1px solid #e5e7eb;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: space-between;
-}
-
-.analytics-brand {
-  color: #14213d;
-
-  text-decoration: none;
-
-  font-size: 21px;
-
-  font-weight: 900;
-
-  letter-spacing: 1px;
-}
-
-.analytics-nav-links {
-  display: flex;
-
-  gap: 26px;
-}
-
-.analytics-nav-links a {
-  text-decoration: none;
-
-  color: #64748b;
-
-  font-size: 14px;
-
-  font-weight: 600;
-}
-
-.analytics-nav-links a:hover,
-.analytics-nav-links a.active {
-  color: #14213d;
-}
-
-
-/* ============================================================
-   MAIN
-============================================================ */
 
 .analytics-main {
-  width: 88%;
+  width: min(92%, 1400px);
 
-  max-width: 1350px;
+  margin: 0 auto;
 
-  margin: auto;
-
-  padding: 45px 0 70px;
+  padding: 42px 0 75px;
 }
 
 
@@ -79,99 +37,438 @@
 ============================================================ */
 
 .analytics-header {
-  margin-bottom: 30px;
+  position: relative;
+
+  overflow: hidden;
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: flex-end;
+
+  gap: 25px;
+
+  padding: 38px;
+
+  margin-bottom: 20px;
+
+  border:
+    1px solid
+    rgba(148, 163, 184, 0.11);
+
+  border-radius: 22px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #0b1b30,
+      #102945 55%,
+      #0a1727
+    );
+
+  box-shadow:
+    0 20px 55px
+    rgba(0, 0, 0, 0.18);
 }
 
-.analytics-header > span {
-  color: #64748b;
 
-  font-size: 10px;
+.analytics-header::before {
+  content: "";
+
+  position: absolute;
+
+  width: 500px;
+
+  height: 500px;
+
+  right: -220px;
+
+  top: -300px;
+
+  border-radius: 50%;
+
+  border:
+    1px solid
+    rgba(59, 130, 246, 0.13);
+}
+
+
+.analytics-header::after {
+  content: "";
+
+  position: absolute;
+
+  width: 330px;
+
+  height: 330px;
+
+  right: 80px;
+
+  bottom: -250px;
+
+  border-radius: 50%;
+
+  border:
+    1px solid
+    rgba(34, 211, 238, 0.07);
+}
+
+
+.analytics-header > div {
+  position: relative;
+
+  z-index: 2;
+}
+
+
+.analytics-eyebrow {
+  color: #67e8f9;
+
+  font-size: 8px;
 
   font-weight: 900;
 
-  letter-spacing: 1.4px;
+  letter-spacing: 1.7px;
 }
+
 
 .analytics-header h1 {
-  margin: 8px 0;
+  margin: 10px 0 9px;
 
-  font-size: 42px;
+  color: #ffffff;
+
+  font-size: clamp(32px, 4vw, 47px);
+
+  line-height: 1;
+
+  letter-spacing: -1.3px;
+
+  font-weight: 900;
 }
 
+
 .analytics-header p {
+  max-width: 650px;
+
   margin: 0;
 
-  color: #64748b;
+  color: #91a7c1;
 
-  font-size: 16px;
+  font-size: 10px;
+
+  line-height: 1.8;
+}
+
+
+.analytics-status {
+  position: relative;
+
+  z-index: 2;
+
+  padding: 8px 11px;
+
+  border:
+    1px solid
+    rgba(34, 197, 94, 0.14);
+
+  border-radius: 20px;
+
+  background:
+    rgba(34, 197, 94, 0.06);
+
+  color: #4ade80;
+
+  font-size: 7px;
+
+  font-weight: 900;
+
+  white-space: nowrap;
 }
 
 
 /* ============================================================
-   KPI
+   KPI GRID
 ============================================================ */
 
 .analytics-kpi-grid {
   display: grid;
 
   grid-template-columns:
-    repeat(6, 1fr);
+    repeat(4, 1fr);
 
-  gap: 15px;
+  gap: 10px;
 
-  margin-bottom: 25px;
+  margin-bottom: 20px;
 }
 
-.kpi-card {
-  background: white;
 
-  padding: 20px;
+.kpi-card {
+  position: relative;
+
+  overflow: hidden;
+
+  min-height: 105px;
+
+  padding: 17px;
+
+  border:
+    1px solid
+    rgba(148, 163, 184, 0.09);
 
   border-radius: 13px;
 
+  background:
+    rgba(13, 27, 42, 0.88);
+
   box-shadow:
-    0 5px 18px
-    rgba(0, 0, 0, 0.04);
+    0 9px 25px
+    rgba(0, 0, 0, 0.07);
 }
 
-.kpi-card > span {
+
+.kpi-card::after {
+  content: "";
+
+  position: absolute;
+
+  width: 90px;
+
+  height: 90px;
+
+  right: -45px;
+
+  top: -45px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(59, 130, 246, 0.045);
+}
+
+
+.kpi-card.featured {
+  border-color:
+    rgba(34, 211, 238, 0.15);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(34, 211, 238, 0.045),
+      rgba(13, 27, 42, 0.9)
+    );
+}
+
+
+.kpi-card span {
+  position: relative;
+
+  z-index: 2;
+
   display: block;
 
-  color: #64748b;
+  color: #667f9c;
 
-  font-size: 9px;
+  font-size: 6px;
 
   font-weight: 900;
 
   letter-spacing: 0.8px;
 }
 
+
 .kpi-card strong {
+  position: relative;
+
+  z-index: 2;
+
   display: block;
 
   margin-top: 8px;
 
-  font-size: 27px;
+  color: #ffffff;
+
+  font-size: 26px;
+
+  line-height: 1;
+
+  font-weight: 900;
 }
+
 
 .kpi-card p {
-  margin: 5px 0 0;
+  position: relative;
 
-  color: #94a3b8;
+  z-index: 2;
 
-  font-size: 10px;
+  margin: 6px 0 0;
+
+  color: #59718e;
+
+  font-size: 7px;
 }
+
 
 .book-value {
-  color: #15803d;
+  color: #4ade80 !important;
 }
+
 
 .monitor-value {
-  color: #b45309;
+  color: #fbbf24 !important;
 }
 
+
 .wait-value {
-  color: #b91c1c;
+  color: #f87171 !important;
+}
+
+
+.good-value {
+  color: #4ade80 !important;
+}
+
+
+.bad-value {
+  color: #f87171 !important;
+}
+
+
+/* ============================================================
+   INSIGHT BANNER
+============================================================ */
+
+.analytics-insight-banner {
+  position: relative;
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 25px;
+
+  overflow: hidden;
+
+  padding: 23px;
+
+  margin-bottom: 20px;
+
+  border:
+    1px solid
+    rgba(59, 130, 246, 0.13);
+
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(37, 99, 235, 0.09),
+      rgba(13, 27, 42, 0.88)
+    );
+}
+
+
+.analytics-insight-banner::after {
+  content: "";
+
+  position: absolute;
+
+  width: 260px;
+
+  height: 260px;
+
+  right: -110px;
+
+  top: -150px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(34, 211, 238, 0.07),
+      transparent 68%
+    );
+}
+
+
+.analytics-insight-banner > div {
+  position: relative;
+
+  z-index: 2;
+}
+
+
+.analytics-insight-banner > div:first-child {
+  min-width: 0;
+}
+
+
+.analytics-insight-banner span {
+  color: #67e8f9;
+
+  font-size: 6px;
+
+  font-weight: 900;
+
+  letter-spacing: 1px;
+}
+
+
+.analytics-insight-banner h2 {
+  max-width: 760px;
+
+  margin: 7px 0;
+
+  color: #eef5fb;
+
+  font-size: 17px;
+
+  line-height: 1.35;
+}
+
+
+.analytics-insight-banner p {
+  max-width: 760px;
+
+  margin: 0;
+
+  color: #6f87a3;
+
+  font-size: 8px;
+
+  line-height: 1.6;
+}
+
+
+.insight-number {
+  min-width: 150px;
+
+  padding: 15px;
+
+  border:
+    1px solid
+    rgba(148, 163, 184, 0.08);
+
+  border-radius: 11px;
+
+  background:
+    rgba(255, 255, 255, 0.025);
+
+  text-align: right;
+}
+
+
+.insight-number strong {
+  display: block;
+
+  margin-top: 6px;
+
+  color: #ffffff;
+
+  font-size: 23px;
 }
 
 
@@ -185,172 +482,365 @@
   grid-template-columns:
     1fr 1fr;
 
-  gap: 20px;
+  gap: 18px;
 
-  margin-bottom: 25px;
+  margin-bottom: 20px;
 }
+
 
 .chart-card {
-  background: white;
+  min-width: 0;
 
-  border-radius: 14px;
+  padding: 22px;
 
-  padding: 25px;
+  border:
+    1px solid
+    rgba(148, 163, 184, 0.09);
+
+  border-radius: 17px;
+
+  background:
+    rgba(13, 27, 42, 0.88);
 
   box-shadow:
-    0 5px 18px
-    rgba(0, 0, 0, 0.04);
+    0 12px 35px
+    rgba(0, 0, 0, 0.10);
 }
 
-.chart-header > span {
-  color: #64748b;
 
-  font-size: 10px;
+.chart-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: flex-end;
+
+  gap: 15px;
+
+  margin-bottom: 15px;
+}
+
+
+.chart-header > div > span,
+.chart-header > span:first-child {
+  color: #68809d;
+
+  font-size: 6px;
 
   font-weight: 900;
 
-  letter-spacing: 0.8px;
+  letter-spacing: 0.9px;
 }
 
-.chart-header h2 {
-  margin: 6px 0 0;
 
-  font-size: 21px;
+.chart-header h2 {
+  margin: 5px 0 0;
+
+  color: #edf4fa;
+
+  font-size: 19px;
+}
+
+
+.chart-badge {
+  padding: 5px 8px;
+
+  border:
+    1px solid
+    rgba(59, 130, 246, 0.12);
+
+  border-radius: 20px;
+
+  background:
+    rgba(59, 130, 246, 0.06);
+
+  color: #72a4e7 !important;
+
+  font-size: 6px !important;
+
+  font-weight: 900;
 }
 
 
 /* ============================================================
-   AIRLINE
+   CHART AREA
+============================================================ */
+
+.chart-card .recharts-wrapper {
+  overflow: visible;
+}
+
+
+.chart-card .recharts-cartesian-grid-horizontal line,
+.chart-card .recharts-cartesian-grid-vertical line {
+  stroke: rgba(148, 163, 184, 0.08);
+}
+
+
+.chart-card .recharts-text,
+.airline-section .recharts-text {
+  fill: #7188a4;
+}
+
+
+.chart-card .recharts-default-tooltip,
+.airline-section .recharts-default-tooltip {
+  background: #0d1b2a !important;
+
+  border:
+    1px solid
+    rgba(148, 163, 184, 0.12) !important;
+}
+
+
+.chart-card .recharts-legend-item-text,
+.airline-section .recharts-legend-item-text {
+  color: #8ca1ba !important;
+
+  font-size: 9px;
+}
+
+
+/* ============================================================
+   AIRLINE SECTION
 ============================================================ */
 
 .airline-section {
-  background: white;
+  padding: 22px;
 
-  border-radius: 14px;
+  margin-bottom: 20px;
 
-  padding: 25px;
+  border:
+    1px solid
+    rgba(148, 163, 184, 0.09);
 
-  margin-bottom: 25px;
+  border-radius: 17px;
+
+  background:
+    rgba(13, 27, 42, 0.88);
 
   box-shadow:
-    0 5px 18px
-    rgba(0, 0, 0, 0.04);
+    0 12px 35px
+    rgba(0, 0, 0, 0.10);
 }
 
+
 .airline-chart {
-  margin-top: 15px;
+  min-height: 330px;
+
+  padding: 10px;
+
+  border:
+    1px solid
+    rgba(148, 163, 184, 0.07);
+
+  border-radius: 11px;
+
+  background:
+    #091624;
 }
 
 
 /* ============================================================
-   UNUSUAL
+   UNUSUAL / ANOMALY SECTION
 ============================================================ */
 
 .unusual-section {
-  background: white;
+  padding: 22px;
 
-  border-radius: 14px;
+  margin-bottom: 20px;
 
-  padding: 25px;
+  border:
+    1px solid
+    rgba(148, 163, 184, 0.09);
+
+  border-radius: 17px;
+
+  background:
+    rgba(13, 27, 42, 0.88);
 
   box-shadow:
-    0 5px 18px
-    rgba(0, 0, 0, 0.04);
+    0 12px 35px
+    rgba(0, 0, 0, 0.10);
 }
+
 
 .anomaly-table-wrapper {
-  margin-top: 20px;
-
   overflow-x: auto;
+
+  border:
+    1px solid
+    rgba(148, 163, 184, 0.07);
+
+  border-radius: 11px;
 }
+
 
 .anomaly-table-wrapper table {
   width: 100%;
 
-  min-width: 750px;
+  min-width: 800px;
 
   border-collapse: collapse;
 }
 
+
 .anomaly-table-wrapper th {
+  padding: 12px;
+
+  background:
+    rgba(255, 255, 255, 0.025);
+
+  color: #5f7896;
+
+  font-size: 6px;
+
+  font-weight: 900;
+
+  letter-spacing: 0.8px;
+
   text-align: left;
 
-  padding: 13px;
-
-  background: #f8fafc;
-
-  color: #64748b;
-
-  font-size: 10px;
-
-  text-transform: uppercase;
+  white-space: nowrap;
 }
+
 
 .anomaly-table-wrapper td {
-  padding: 14px 13px;
+  padding: 12px;
 
-  border-bottom:
-    1px solid #e5e7eb;
+  border-top:
+    1px solid
+    rgba(148, 163, 184, 0.06);
 
-  font-size: 13px;
+  color: #9db0c5;
+
+  font-size: 8px;
+
+  white-space: nowrap;
 }
 
 
-/* ============================================================
-   STATUS
-============================================================ */
+.anomaly-table-wrapper tr:hover td {
+  background:
+    rgba(59, 130, 246, 0.025);
+}
+
+
+.anomaly-table-wrapper td:first-child {
+  color: #e6eef7;
+
+  font-weight: 800;
+}
+
 
 .anomaly-status {
-  display: inline-block;
+  display: inline-flex;
 
-  padding: 6px 10px;
+  padding: 5px 8px;
 
   border-radius: 20px;
 
-  font-size: 10px;
+  font-size: 6px;
 
   font-weight: 900;
 }
 
-.anomaly-status.low {
-  background: #fef3c7;
-
-  color: #92400e;
-}
-
-.anomaly-status.medium {
-  background: #ffedd5;
-
-  color: #c2410c;
-}
 
 .anomaly-status.high {
-  background: #fee2e2;
+  background:
+    rgba(239, 68, 68, 0.09);
 
-  color: #991b1b;
+  color: #f87171;
+}
+
+
+.anomaly-status.medium {
+  background:
+    rgba(245, 158, 11, 0.09);
+
+  color: #fbbf24;
+}
+
+
+.anomaly-status.low {
+  background:
+    rgba(59, 130, 246, 0.09);
+
+  color: #60a5fa;
+}
+
+
+.anomaly-status.normal {
+  background:
+    rgba(34, 197, 94, 0.09);
+
+  color: #4ade80;
 }
 
 
 /* ============================================================
-   EMPTY
+   EMPTY ANOMALIES
 ============================================================ */
 
 .empty-anomalies {
-  margin-top: 20px;
+  padding: 50px 20px;
 
-  padding: 40px;
+  text-align: center;
 
-  background: #f8fafc;
+  border:
+    1px solid
+    rgba(148, 163, 184, 0.07);
+
+  border-radius: 12px;
+
+  background:
+    rgba(255, 255, 255, 0.02);
+}
+
+
+.empty-anomalies strong {
+  color: #dce7f2;
+
+  font-size: 12px;
+}
+
+
+.empty-anomalies p {
+  max-width: 450px;
+
+  margin: 7px auto 0;
+
+  color: #607894;
+
+  font-size: 8px;
+
+  line-height: 1.6;
+}
+
+
+/* ============================================================
+   FOOTER NOTE
+============================================================ */
+
+.analytics-note {
+  padding: 13px 15px;
+
+  border:
+    1px solid
+    rgba(148, 163, 184, 0.07);
 
   border-radius: 10px;
 
+  background:
+    rgba(255, 255, 255, 0.018);
+
+  color: #5b738f;
+
+  font-size: 7px;
+
+  line-height: 1.6;
+
   text-align: center;
-}
-
-.empty-anomalies p {
-  color: #64748b;
-
-  font-size: 13px;
 }
 
 
@@ -359,7 +849,7 @@
 ============================================================ */
 
 .analytics-loading {
-  min-height: 80vh;
+  min-height: 70vh;
 
   display: flex;
 
@@ -368,21 +858,59 @@
   justify-content: center;
 
   flex-direction: column;
+
+  text-align: center;
 }
 
+
+.analytics-loading span {
+  color: #67e8f9;
+
+  font-size: 7px;
+
+  font-weight: 900;
+
+  letter-spacing: 1px;
+}
+
+
+.analytics-loading h2 {
+  margin: 10px 0 5px;
+
+  color: #ffffff;
+
+  font-size: 21px;
+}
+
+
+.analytics-loading p {
+  margin: 0;
+
+  color: #647e9b;
+
+  font-size: 9px;
+}
+
+
 .analytics-spinner {
-  width: 40px;
-  height: 40px;
+  width: 34px;
 
-  border: 4px solid #e2e8f0;
+  height: 34px;
 
-  border-top-color: #14213d;
+  margin-bottom: 15px;
+
+  border:
+    3px solid
+    rgba(59, 130, 246, 0.12);
+
+  border-top-color: #3b82f6;
 
   border-radius: 50%;
 
   animation:
-    analyticsSpin 1s linear infinite;
+    analyticsSpin 0.9s linear infinite;
 }
+
 
 @keyframes analyticsSpin {
 
@@ -398,106 +926,211 @@
 ============================================================ */
 
 .analytics-error {
-  width: 90%;
+  min-height: 60vh;
 
-  max-width: 500px;
+  display: flex;
 
-  margin: 120px auto;
+  align-items: center;
 
-  padding: 35px;
+  justify-content: center;
 
-  background: white;
+  flex-direction: column;
 
   text-align: center;
-
-  border-radius: 15px;
-
-  box-shadow:
-    0 5px 18px
-    rgba(0, 0, 0, 0.05);
 }
+
+
+.analytics-error-icon {
+  width: 46px;
+
+  height: 46px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  margin-bottom: 13px;
+
+  border-radius: 14px;
+
+  background:
+    rgba(239, 68, 68, 0.09);
+
+  color: #f87171;
+
+  font-size: 17px;
+
+  font-weight: 900;
+}
+
+
+.analytics-error h2 {
+  margin: 0 0 6px;
+
+  color: #ffffff;
+
+  font-size: 21px;
+}
+
 
 .analytics-error p {
-  color: #64748b;
+  margin: 0 0 15px;
 
-  line-height: 1.6;
+  color: #677f9b;
+
+  font-size: 9px;
 }
 
+
 .analytics-error button {
-  margin-top: 15px;
+  min-height: 39px;
 
-  padding: 11px 18px;
+  padding: 0 15px;
 
-  border: none;
+  border: 0;
 
-  border-radius: 8px;
+  border-radius: 9px;
 
-  background: #14213d;
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #3b82f6
+    );
 
-  color: white;
+  color: #ffffff;
 
-  font-weight: 700;
+  font-size: 8px;
+
+  font-weight: 900;
 
   cursor: pointer;
 }
 
 
 /* ============================================================
-   RESPONSIVE
+   RESPONSIVE — 1100px
 ============================================================ */
 
 @media (max-width: 1100px) {
 
   .analytics-kpi-grid {
     grid-template-columns:
-      repeat(3, 1fr);
+      repeat(2, 1fr);
   }
 
-}
-
-@media (max-width: 850px) {
 
   .chart-grid {
     grid-template-columns: 1fr;
   }
 
-  .analytics-kpi-grid {
-    grid-template-columns:
-      repeat(2, 1fr);
-  }
-
 }
 
-@media (max-width: 600px) {
 
-  .analytics-navbar {
-    height: auto;
+/* ============================================================
+   RESPONSIVE — 700px
+============================================================ */
 
-    padding: 18px 6%;
+@media (max-width: 700px) {
+
+  .analytics-main {
+    width: 94%;
+
+    padding-top: 25px;
+  }
+
+
+  .analytics-header {
+    align-items: flex-start;
 
     flex-direction: column;
 
-    gap: 15px;
+    padding: 28px 21px;
   }
 
-  .analytics-nav-links {
-    gap: 13px;
-
-    flex-wrap: wrap;
-
-    justify-content: center;
-  }
-
-  .analytics-main {
-    width: 92%;
-  }
 
   .analytics-header h1 {
-    font-size: 34px;
+    font-size: 30px;
   }
+
 
   .analytics-kpi-grid {
     grid-template-columns: 1fr;
   }
 
+
+  .analytics-insight-banner {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+
+  .insight-number {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    text-align: left;
+  }
+
+
+  .analytics-insight-banner h2 {
+    font-size: 15px;
+  }
+
+
+  .chart-card,
+  .airline-section,
+  .unusual-section {
+    padding: 18px;
+  }
+
+
+  .chart-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+}
+
+/* ============================================================
+   ANALYTICS CHART EMPTY STATE
+============================================================ */
+
+.analytics-chart-empty {
+  min-height: 320px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-direction: column;
+
+  text-align: center;
+}
+
+
+.analytics-chart-empty strong {
+  color: #dce7f2;
+
+  font-size: 12px;
+}
+
+
+.analytics-chart-empty p {
+  max-width: 420px;
+
+  margin: 7px 0 0;
+
+  color: #607894;
+
+  font-size: 8px;
+
+  line-height: 1.6;
 }

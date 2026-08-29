@@ -1,125 +1,219 @@
+/* ============================================================
+   AIRWISE — FARE SEARCH
+============================================================ */
+
 .fare-search-page {
   min-height: 100vh;
-  background: #f5f7fb;
-  color: #14213d;
+
+  background:
+    radial-gradient(
+      circle at 85% 5%,
+      rgba(59, 130, 246, 0.14),
+      transparent 24%
+    ),
+    radial-gradient(
+      circle at 10% 40%,
+      rgba(34, 211, 238, 0.05),
+      transparent 20%
+    ),
+    #07111f;
+
+  color: #f8fafc;
+}
+
+
+.fare-search-container {
+  width: min(92%, 1400px);
+
+  margin: 0 auto;
+
+  padding: 42px 0 70px;
 }
 
 
 /* ============================================================
-   NAVBAR
+   HERO
 ============================================================ */
 
-.search-navbar {
-  height: 76px;
-  padding: 0 6%;
+.fare-search-hero {
+  position: relative;
 
-  background: #ffffff;
+  overflow: hidden;
 
-  display: flex;
+  padding: 40px;
+
+  margin-bottom: 20px;
+
+  border:
+    1px solid
+    rgba(148, 163, 184, 0.12);
+
+  border-radius: 23px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #0c1b2f,
+      #102844 55%,
+      #0b1728
+    );
+
+  box-shadow:
+    0 20px 55px
+    rgba(0, 0, 0, 0.18);
+}
+
+
+.fare-search-hero::before {
+  content: "";
+
+  position: absolute;
+
+  width: 500px;
+
+  height: 500px;
+
+  right: -240px;
+
+  top: -260px;
+
+  border:
+    1px solid
+    rgba(59, 130, 246, 0.13);
+
+  border-radius: 50%;
+}
+
+
+.fare-search-hero::after {
+  content: "";
+
+  position: absolute;
+
+  width: 350px;
+
+  height: 350px;
+
+  right: -130px;
+
+  bottom: -230px;
+
+  border:
+    1px solid
+    rgba(34, 211, 238, 0.08);
+
+  border-radius: 50%;
+}
+
+
+.fare-search-eyebrow {
+  position: relative;
+
+  z-index: 2;
+
+  display: inline-flex;
+
   align-items: center;
-  justify-content: space-between;
 
-  border-bottom: 1px solid #e5e7eb;
-}
+  gap: 8px;
 
-.search-brand {
-  display: flex;
-  align-items: center;
+  color: #67e8f9;
 
-  gap: 12px;
-
-  text-decoration: none;
-
-  color: #14213d;
-}
-
-.brand-box {
-  width: 42px;
-  height: 42px;
-
-  background: #14213d;
-  color: white;
-
-  border-radius: 10px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  font-size: 21px;
-  font-weight: 900;
-}
-
-.search-brand strong {
-  display: block;
-
-  font-size: 19px;
-
-  letter-spacing: 1px;
-}
-
-.search-brand span {
-  display: block;
-
-  margin-top: 3px;
-
-  color: #64748b;
-
-  font-size: 11px;
-}
-
-.search-nav-links {
-  display: flex;
-
-  gap: 30px;
-}
-
-.search-nav-links a {
-  text-decoration: none;
-
-  color: #64748b;
-
-  font-size: 14px;
-
-  font-weight: 600;
-}
-
-.search-nav-links a:hover,
-.search-nav-links a.active {
-  color: #14213d;
-}
-
-
-/* ============================================================
-   HEADER
-============================================================ */
-
-.search-header {
-  padding: 50px 6% 30px;
-}
-
-.search-header > span {
-  color: #64748b;
-
-  font-size: 11px;
+  font-size: 8px;
 
   font-weight: 900;
 
-  letter-spacing: 1.5px;
+  letter-spacing: 1.7px;
 }
 
-.search-header h1 {
-  margin: 8px 0;
 
-  font-size: 44px;
+.fare-search-eyebrow::before {
+  content: "";
+
+  width: 6px;
+
+  height: 6px;
+
+  border-radius: 50%;
+
+  background: #22d3ee;
+
+  box-shadow:
+    0 0 11px
+    rgba(34, 211, 238, 0.8);
 }
 
-.search-header p {
+
+.fare-search-hero h1 {
+  position: relative;
+
+  z-index: 2;
+
+  margin: 12px 0 10px;
+
+  color: #ffffff;
+
+  font-size: clamp(32px, 4.5vw, 50px);
+
+  line-height: 1.03;
+
+  letter-spacing: -1.5px;
+
+  font-weight: 900;
+}
+
+
+.fare-search-hero p {
+  position: relative;
+
+  z-index: 2;
+
+  max-width: 650px;
+
   margin: 0;
 
-  color: #64748b;
+  color: #91a7c2;
 
-  font-size: 16px;
+  font-size: 11px;
+
+  line-height: 1.8;
+}
+
+
+.fare-search-hero-meta {
+  position: relative;
+
+  z-index: 2;
+
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  margin-top: 22px;
+}
+
+
+.fare-search-hero-meta span {
+  padding: 6px 9px;
+
+  border:
+    1px solid
+    rgba(148, 163, 184, 0.10);
+
+  border-radius: 20px;
+
+  background:
+    rgba(255, 255, 255, 0.03);
+
+  color: #728aa6;
+
+  font-size: 6px;
+
+  font-weight: 900;
+
+  letter-spacing: 0.7px;
 }
 
 
@@ -127,97 +221,264 @@
    SEARCH BOX
 ============================================================ */
 
-.search-box {
-  margin: 0 6% 35px;
+.fare-search-box {
+  padding: 24px;
 
-  padding: 28px;
+  margin-bottom: 20px;
 
-  background: white;
+  border:
+    1px solid
+    rgba(148, 163, 184, 0.11);
 
-  border-radius: 16px;
+  border-radius: 18px;
 
+  background:
+    rgba(13, 27, 42, 0.90);
+
+  box-shadow:
+    0 12px 35px
+    rgba(0, 0, 0, 0.12);
+}
+
+
+.fare-search-box-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: flex-end;
+
+  gap: 15px;
+
+  margin-bottom: 18px;
+}
+
+
+.fare-search-box-header > div > span {
+  color: #7088a5;
+
+  font-size: 7px;
+
+  font-weight: 900;
+
+  letter-spacing: 1px;
+}
+
+
+.fare-search-box-header h2 {
+  margin: 5px 0 0;
+
+  color: #f8fafc;
+
+  font-size: 20px;
+}
+
+
+.fare-search-live {
+  padding: 6px 9px;
+
+  border:
+    1px solid
+    rgba(34, 197, 94, 0.15);
+
+  border-radius: 20px;
+
+  background:
+    rgba(34, 197, 94, 0.07);
+
+  color: #4ade80;
+
+  font-size: 7px;
+
+  font-weight: 900;
+}
+
+
+.fare-search-form {
   display: grid;
 
   grid-template-columns:
-    1fr
-    50px
-    1fr
-    170px;
+    minmax(0, 1fr)
+    52px
+    minmax(0, 1fr)
+    165px;
+
+  gap: 11px;
 
   align-items: end;
-
-  gap: 18px;
-
-  box-shadow:
-    0 5px 20px
-    rgba(0, 0, 0, 0.05);
 }
 
-.input-group label {
+
+/* ============================================================
+   INPUTS
+============================================================ */
+
+.fare-search-field {
+  min-width: 0;
+}
+
+
+.fare-search-field label {
   display: block;
 
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 
-  font-size: 12px;
+  color: #748ba7;
 
-  font-weight: 800;
+  font-size: 7px;
+
+  font-weight: 900;
+
+  letter-spacing: 1px;
 }
 
-.input-group input {
+
+.fare-search-field input {
   width: 100%;
 
-  height: 52px;
+  height: 50px;
 
   padding: 0 14px;
 
-  border:
-    1px solid #cbd5e1;
+  box-sizing: border-box;
 
-  border-radius: 8px;
+  border:
+    1px solid
+    rgba(148, 163, 184, 0.15);
+
+  border-radius: 9px;
 
   outline: none;
 
+  background: #081524;
+
+  color: #ffffff;
+
   font-size: 16px;
+
+  font-weight: 900;
+
+  letter-spacing: 2px;
 
   text-transform: uppercase;
 }
 
-.input-group input:focus {
-  border-color: #14213d;
+
+.fare-search-field input:focus {
+  border-color:
+    rgba(59, 130, 246, 0.65);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(59, 130, 246, 0.08);
 }
 
-.route-arrow {
-  text-align: center;
 
-  padding-bottom: 9px;
+.fare-search-field small {
+  display: block;
 
-  font-size: 25px;
+  margin-top: 5px;
 
-  color: #64748b;
+  color: #5d7592;
+
+  font-size: 7px;
 }
 
-.search-box button {
-  height: 52px;
 
-  border: none;
+/* ============================================================
+   SWAP
+============================================================ */
 
-  border-radius: 8px;
+.route-swap-button {
+  width: 52px;
 
-  background: #14213d;
+  height: 50px;
 
-  color: white;
+  border:
+    1px solid
+    rgba(148, 163, 184, 0.11);
 
-  font-weight: 800;
+  border-radius: 10px;
+
+  background:
+    rgba(255, 255, 255, 0.025);
+
+  color: #78a9df;
+
+  font-size: 19px;
+
+  font-weight: 500;
 
   cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
 
-.search-box button:hover {
-  opacity: 0.9;
+
+.route-swap-button:hover {
+  transform: rotate(180deg);
+
+  border-color:
+    rgba(59, 130, 246, 0.25);
+
+  background:
+    rgba(59, 130, 246, 0.07);
 }
 
-.search-box button:disabled {
-  opacity: 0.6;
+
+/* ============================================================
+   SEARCH BUTTON
+============================================================ */
+
+.fare-search-submit {
+  height: 50px;
+
+  border: 0;
+
+  border-radius: 9px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #3b82f6
+    );
+
+  color: #ffffff;
+
+  font-size: 9px;
+
+  font-weight: 900;
+
+  letter-spacing: 0.4px;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 8px 22px
+    rgba(37, 99, 235, 0.18);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+
+.fare-search-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 12px 28px
+    rgba(37, 99, 235, 0.26);
+}
+
+
+.fare-search-submit:disabled {
+  opacity: 0.55;
 
   cursor: not-allowed;
 }
@@ -227,20 +488,67 @@
    ERROR
 ============================================================ */
 
-.search-error {
-  margin: 0 6% 25px;
+.fare-search-error {
+  display: flex;
 
-  padding: 16px;
+  align-items: center;
 
-  background: #fee2e2;
+  gap: 12px;
 
-  border: 1px solid #fecaca;
+  padding: 13px 15px;
 
-  border-radius: 9px;
+  margin-bottom: 18px;
 
-  color: #991b1b;
+  border:
+    1px solid
+    rgba(239, 68, 68, 0.16);
 
-  font-weight: 600;
+  border-radius: 11px;
+
+  background:
+    rgba(239, 68, 68, 0.07);
+}
+
+
+.fare-search-error > span {
+  width: 25px;
+
+  height: 25px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background:
+    rgba(239, 68, 68, 0.12);
+
+  color: #f87171;
+
+  font-size: 11px;
+
+  font-weight: 900;
+}
+
+
+.fare-search-error strong {
+  color: #fda4af;
+
+  font-size: 10px;
+}
+
+
+.fare-search-error p {
+  margin: 3px 0 0;
+
+  color: #9d7180;
+
+  font-size: 8px;
 }
 
 
@@ -248,29 +556,43 @@
    LOADING
 ============================================================ */
 
-.search-loading {
-  padding: 60px;
+.fare-search-loading {
+  padding: 55px 20px;
 
   text-align: center;
+
+  border:
+    1px solid
+    rgba(148, 163, 184, 0.09);
+
+  border-radius: 16px;
+
+  background:
+    rgba(13, 27, 42, 0.82);
 }
 
-.search-spinner {
-  width: 40px;
-  height: 40px;
+
+.fare-search-spinner {
+  width: 34px;
+
+  height: 34px;
 
   margin: 0 auto 15px;
 
-  border: 4px solid #e2e8f0;
+  border:
+    3px solid
+    rgba(59, 130, 246, 0.14);
 
-  border-top-color: #14213d;
+  border-top-color: #3b82f6;
 
   border-radius: 50%;
 
   animation:
-    searchSpin 1s linear infinite;
+    fareSearchSpin 0.9s linear infinite;
 }
 
-@keyframes searchSpin {
+
+@keyframes fareSearchSpin {
 
   to {
     transform: rotate(360deg);
@@ -278,69 +600,120 @@
 
 }
 
-.search-loading p {
-  color: #64748b;
+
+.fare-search-loading h3 {
+  margin: 0;
+
+  color: #e3edf8;
+
+  font-size: 15px;
+}
+
+
+.fare-search-loading p {
+  margin: 7px 0 0;
+
+  color: #667f9c;
+
+  font-size: 9px;
 }
 
 
 /* ============================================================
-   RESULTS
+   RESULTS HEADER
 ============================================================ */
 
-.results-container {
-  margin: 0 6% 60px;
+.fare-results-section {
+  margin-top: 8px;
 }
 
-.results-header {
+
+.fare-results-header {
   display: flex;
 
   justify-content: space-between;
 
-  align-items: end;
+  align-items: flex-end;
 
-  margin-bottom: 20px;
+  gap: 15px;
+
+  margin-bottom: 15px;
 }
 
-.results-header > div:first-child > span {
-  color: #64748b;
 
-  font-size: 10px;
+.fare-results-header > div:first-child > span,
+.fare-all-header span:first-child {
+  color: #68819f;
+
+  font-size: 7px;
 
   font-weight: 900;
 
   letter-spacing: 1px;
 }
 
-.results-header h2 {
-  margin: 7px 0 0;
 
-  font-size: 30px;
+.fare-results-header h2 {
+  margin: 5px 0 0;
+
+  color: #f8fafc;
+
+  font-size: 25px;
+
+  line-height: 1;
 }
 
-.result-arrow {
-  margin: 0 12px;
 
-  color: #64748b;
-}
+.fare-results-header h2 b {
+  margin: 0 9px;
 
-.result-count {
-  background: white;
-
-  padding: 11px 16px;
-
-  border-radius: 8px;
-
-  font-weight: 800;
-}
-
-.result-count span {
-  margin-left: 5px;
-
-  color: #64748b;
-
-  font-size: 12px;
+  color: #3b82f6;
 
   font-weight: 500;
+}
+
+
+.fare-result-count {
+  min-width: 80px;
+
+  padding: 11px 13px;
+
+  border:
+    1px solid
+    rgba(148, 163, 184, 0.10);
+
+  border-radius: 10px;
+
+  background:
+    rgba(255, 255, 255, 0.025);
+
+  text-align: center;
+}
+
+
+.fare-result-count strong {
+  display: block;
+
+  color: #ffffff;
+
+  font-size: 22px;
+
+  line-height: 1;
+}
+
+
+.fare-result-count span {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #627b99;
+
+  font-size: 6px;
+
+  font-weight: 900;
+
+  letter-spacing: 0.6px;
 }
 
 
@@ -349,199 +722,358 @@
 ============================================================ */
 
 .best-fare-card {
-  padding: 28px;
+  position: relative;
 
-  border-radius: 15px;
+  overflow: hidden;
 
-  background: #14213d;
+  margin-bottom: 22px;
 
-  color: white;
+  padding: 23px;
+
+  border:
+    1px solid
+    rgba(34, 211, 238, 0.18);
+
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #0e223b,
+      #102c49
+    );
 
   box-shadow:
-    0 8px 25px
-    rgba(20, 33, 61, 0.16);
+    0 12px 35px
+    rgba(0, 0, 0, 0.15);
 }
 
-.best-badge {
+
+.best-fare-glow {
+  position: absolute;
+
+  width: 250px;
+
+  height: 250px;
+
+  right: -120px;
+
+  top: -140px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(34, 211, 238, 0.11),
+      transparent 68%
+    );
+}
+
+
+.best-fare-label {
+  position: relative;
+
+  z-index: 2;
+
   display: inline-block;
 
-  padding: 6px 10px;
+  padding: 5px 8px;
+
+  border:
+    1px solid
+    rgba(34, 211, 238, 0.17);
 
   border-radius: 20px;
 
-  background: #facc15;
+  background:
+    rgba(34, 211, 238, 0.07);
 
-  color: #422006;
+  color: #67e8f9;
 
-  font-size: 10px;
+  font-size: 6px;
 
   font-weight: 900;
+
+  letter-spacing: 0.8px;
 }
 
-.best-fare-content {
-  margin-top: 23px;
+
+.best-fare-grid {
+  position: relative;
+
+  z-index: 2;
 
   display: grid;
 
   grid-template-columns:
-    1.4fr
+    1.25fr
     1fr
     1fr
     1fr;
 
-  gap: 25px;
+  gap: 12px;
 
-  align-items: center;
+  margin-top: 18px;
 }
 
-.best-fare-content span {
+
+.best-fare-grid > div {
+  min-width: 0;
+
+  padding: 13px;
+
+  border:
+    1px solid
+    rgba(148, 163, 184, 0.08);
+
+  border-radius: 10px;
+
+  background:
+    rgba(255, 255, 255, 0.025);
+}
+
+
+.best-fare-grid span {
   display: block;
 
-  margin-bottom: 7px;
+  color: #718aa7;
 
-  color: #94a3b8;
+  font-size: 6px;
 
-  font-size: 10px;
-
-  font-weight: 800;
+  font-weight: 900;
 
   letter-spacing: 0.7px;
 }
 
-.best-fare-content h2 {
-  margin: 0;
 
-  font-size: 25px;
-}
+.best-fare-grid strong {
+  display: block;
 
-.best-fare-content strong {
+  margin-top: 7px;
+
+  color: #f8fafc;
+
   font-size: 20px;
 }
 
-.best-fare-content .best-price {
-  font-size: 30px;
+
+.best-fare-airline strong {
+  font-size: 16px;
+}
+
+
+.best-fare-grid small {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #5e7794;
+
+  font-size: 7px;
+}
+
+
+.best-fare-price strong {
+  font-size: 24px;
+
+  white-space: nowrap;
+}
+
+
+.best-fare-price.muted strong {
+  color: #bdcbe0;
+
+  font-size: 18px;
 }
 
 
 /* ============================================================
-   ALL FARES
+   ALL FARES HEADER
 ============================================================ */
 
-.all-fares-title {
-  margin: 32px 0 18px;
+.fare-all-header {
+  display: flex;
 
-  font-size: 23px;
+  justify-content: space-between;
+
+  align-items: flex-end;
+
+  gap: 15px;
+
+  margin: 20px 0 12px;
 }
+
+
+.fare-all-header h2 {
+  margin: 5px 0 0;
+
+  color: #eaf2fb;
+
+  font-size: 18px;
+}
+
+
+.fare-all-header > span:last-child {
+  color: #5e7693;
+
+  font-size: 7px;
+}
+
+
+/* ============================================================
+   FARE GRID
+============================================================ */
 
 .fare-grid {
   display: grid;
 
   grid-template-columns:
-    repeat(2, 1fr);
+    repeat(2, minmax(0, 1fr));
 
-  gap: 20px;
+  gap: 13px;
 }
 
-
-/* ============================================================
-   FARE CARD
-============================================================ */
 
 .fare-card {
-  padding: 25px;
+  position: relative;
 
-  background: white;
+  padding: 20px;
 
   border:
-    1px solid #e5e7eb;
+    1px solid
+    rgba(148, 163, 184, 0.10);
 
-  border-radius: 14px;
+  border-radius: 15px;
+
+  background:
+    rgba(13, 27, 42, 0.88);
 
   box-shadow:
-    0 5px 18px
-    rgba(0, 0, 0, 0.04);
+    0 9px 25px
+    rgba(0, 0, 0, 0.07);
+
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
 }
 
-.fare-card.best-card {
-  border:
-    2px solid #14213d;
+
+.fare-card:hover {
+  transform: translateY(-2px);
+
+  border-color:
+    rgba(59, 130, 246, 0.23);
+
+  background:
+    rgba(15, 33, 52, 0.96);
 }
+
+
+.fare-card.best-card {
+  border-color:
+    rgba(34, 211, 238, 0.22);
+}
+
 
 .fare-card-header {
   display: flex;
 
+  align-items: flex-start;
+
   justify-content: space-between;
 
-  align-items: start;
+  gap: 12px;
 
-  padding-bottom: 17px;
+  padding-bottom: 13px;
 
   border-bottom:
-    1px solid #e5e7eb;
+    1px solid
+    rgba(148, 163, 184, 0.08);
 }
 
-.fare-card-header span {
-  display: block;
 
-  color: #64748b;
+.fare-card-header span:first-child {
+  color: #66809e;
 
-  font-size: 10px;
+  font-size: 6px;
 
-  font-weight: 800;
+  font-weight: 900;
 
-  letter-spacing: 0.7px;
+  letter-spacing: 0.8px;
 }
+
 
 .fare-card-header h2 {
   margin: 6px 0 0;
 
-  font-size: 22px;
+  color: #ffffff;
+
+  font-size: 18px;
 }
 
+
 .mini-best {
-  padding: 5px 9px;
+  padding: 5px 8px;
 
-  border-radius: 15px;
+  border-radius: 20px;
 
-  background: #dcfce7 !important;
+  background:
+    rgba(34, 211, 238, 0.08);
 
-  color: #166534 !important;
+  border:
+    1px solid
+    rgba(34, 211, 238, 0.14);
 
-  font-size: 9px !important;
+  color: #67e8f9;
+
+  font-size: 6px;
+
+  font-weight: 900;
 }
 
 
 /* ============================================================
-   PRICE
+   FARE PRICE
 ============================================================ */
 
 .fare-price {
-  padding: 19px 0;
+  padding: 17px 0;
 }
 
-.fare-price span {
+
+.fare-price span,
+.fare-details span,
+.fare-analysis span,
+.fare-recommendation span {
   display: block;
 
-  color: #64748b;
+  color: #68819f;
 
-  font-size: 10px;
+  font-size: 6px;
 
-  font-weight: 800;
+  font-weight: 900;
 
   letter-spacing: 0.7px;
 }
 
+
 .fare-price strong {
   display: block;
 
-  margin-top: 7px;
+  margin-top: 6px;
 
-  font-size: 30px;
+  color: #ffffff;
+
+  font-size: 28px;
+
+  line-height: 1;
 }
 
 
 /* ============================================================
-   DETAILS
+   FARE DETAILS
 ============================================================ */
 
 .fare-details {
@@ -550,37 +1082,38 @@
   grid-template-columns:
     1fr 1fr;
 
-  gap: 15px;
+  gap: 10px;
 
-  padding: 17px 0;
+  padding: 13px 0;
 
   border-top:
-    1px solid #e5e7eb;
+    1px solid
+    rgba(148, 163, 184, 0.08);
 
   border-bottom:
-    1px solid #e5e7eb;
+    1px solid
+    rgba(148, 163, 184, 0.08);
 }
 
-.fare-details span,
-.fare-analysis span,
-.fare-recommendation > span {
-  display: block;
-
-  color: #64748b;
-
-  font-size: 10px;
-
-  font-weight: 800;
-
-  letter-spacing: 0.6px;
-}
 
 .fare-details strong {
   display: block;
 
-  margin-top: 6px;
+  margin-top: 5px;
 
-  font-size: 17px;
+  color: #dbe6f2;
+
+  font-size: 13px;
+}
+
+
+.difference-good {
+  color: #4ade80 !important;
+}
+
+
+.difference-bad {
+  color: #f87171 !important;
 }
 
 
@@ -589,64 +1122,79 @@
 ============================================================ */
 
 .fare-analysis {
-  display: flex;
+  display: grid;
 
-  justify-content: space-between;
+  grid-template-columns:
+    1fr 1fr;
 
-  align-items: center;
+  gap: 10px;
 
-  padding: 17px 0;
+  padding: 13px 0;
 }
+
+
+.fare-analysis > div {
+  min-width: 0;
+}
+
 
 .fare-analysis strong {
   display: block;
 
-  margin-top: 6px;
+  margin-top: 5px;
 
-  font-size: 17px;
+  color: #dbe6f2;
+
+  font-size: 12px;
 }
 
 
-/* ============================================================
-   STATUS
-============================================================ */
-
 .status-badge {
-  display: inline-block;
+  display: inline-flex;
 
-  margin-top: 6px;
+  margin-top: 5px;
 
-  padding: 6px 10px;
+  padding: 5px 8px;
 
   border-radius: 20px;
 
-  font-size: 10px;
+  font-size: 6px;
 
   font-weight: 900;
+
+  letter-spacing: 0.5px;
 }
 
-.status-normal {
-  background: #dcfce7;
-
-  color: #166534;
-}
-
-.status-low {
-  background: #fef3c7;
-
-  color: #92400e;
-}
-
-.status-medium {
-  background: #ffedd5;
-
-  color: #c2410c;
-}
 
 .status-high {
-  background: #fee2e2;
+  background:
+    rgba(239, 68, 68, 0.09);
 
-  color: #991b1b;
+  color: #f87171;
+}
+
+
+.status-medium {
+  background:
+    rgba(245, 158, 11, 0.09);
+
+  color: #fbbf24;
+}
+
+
+.status-low {
+  background:
+    rgba(59, 130, 246, 0.09);
+
+  color: #60a5fa;
+}
+
+
+.status-normal {
+  background:
+    rgba(34, 197, 94, 0.09);
+
+  color: #4ade80;
 }
 
 
@@ -655,39 +1203,44 @@
 ============================================================ */
 
 .fare-recommendation {
-  padding: 15px;
+  display: flex;
 
-  background: #f8fafc;
+  align-items: flex-end;
 
-  border-radius: 9px;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  padding-top: 12px;
+
+  border-top:
+    1px solid
+    rgba(148, 163, 184, 0.08);
 }
+
+
+.fare-recommendation > span {
+  margin-bottom: 2px;
+}
+
 
 .fare-recommendation strong {
-  display: block;
-
-  margin-top: 6px;
-
-  font-size: 19px;
+  font-size: 9px;
 }
+
 
 .recommend-book {
-  color: #15803d;
+  color: #4ade80 !important;
 }
+
 
 .recommend-monitor {
-  color: #b45309;
+  color: #fbbf24 !important;
 }
+
 
 .recommend-wait {
-  color: #b91c1c;
-}
-
-.difference-good {
-  color: #15803d;
-}
-
-.difference-bad {
-  color: #b91c1c;
+  color: #f87171 !important;
 }
 
 
@@ -695,45 +1248,82 @@
    REASON
 ============================================================ */
 
+.fare-reason {
+  min-height: 48px;
+
+  margin-top: 10px;
+
+  padding: 10px;
+
+  border-radius: 8px;
+
+  background:
+    rgba(255, 255, 255, 0.02);
+}
+
+
 .fare-reason p {
-  margin: 13px 0 0;
+  margin: 0;
 
-  color: #64748b;
+  color: #7087a4;
 
-  font-size: 13px;
+  font-size: 8px;
 
   line-height: 1.6;
 }
 
 
 /* ============================================================
-   AI ANALYSIS BUTTON
+   ANALYSIS BUTTON
 ============================================================ */
 
 .analysis-button {
-  display: block;
+  display: flex;
 
-  margin-top: 18px;
+  align-items: center;
 
-  padding: 12px;
+  justify-content: center;
 
-  text-align: center;
+  gap: 8px;
+
+  margin-top: 12px;
+
+  padding: 10px;
+
+  border:
+    1px solid
+    rgba(59, 130, 246, 0.15);
 
   border-radius: 8px;
 
-  background: #14213d;
+  background:
+    rgba(59, 130, 246, 0.07);
 
-  color: white;
+  color: #7db4ff;
 
   text-decoration: none;
 
-  font-size: 13px;
+  font-size: 8px;
 
-  font-weight: 700;
+  font-weight: 900;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
 
+
+.analysis-button span {
+  font-size: 12px;
+}
+
+
 .analysis-button:hover {
-  background: #1d3557;
+  background:
+    rgba(59, 130, 246, 0.13);
+
+  border-color:
+    rgba(59, 130, 246, 0.23);
 }
 
 
@@ -741,20 +1331,117 @@
    EMPTY
 ============================================================ */
 
-.empty-results {
-  margin: 50px 6%;
+.fare-empty-state {
+  padding: 65px 25px;
 
-  padding: 50px;
+  text-align: center;
 
-  background: white;
+  border:
+    1px solid
+    rgba(148, 163, 184, 0.10);
+
+  border-radius: 18px;
+
+  background:
+    rgba(13, 27, 42, 0.84);
+}
+
+
+.fare-empty-icon {
+  width: 54px;
+
+  height: 54px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  margin: 0 auto 14px;
 
   border-radius: 15px;
 
-  text-align: center;
+  background:
+    rgba(59, 130, 246, 0.09);
+
+  color: #60a5fa;
+
+  font-size: 22px;
 }
 
-.empty-results p {
-  color: #64748b;
+
+.fare-empty-state > span {
+  color: #67e8f9;
+
+  font-size: 7px;
+
+  font-weight: 900;
+
+  letter-spacing: 1.3px;
+}
+
+
+.fare-empty-state h2 {
+  margin: 8px 0;
+
+  color: #ffffff;
+
+  font-size: 20px;
+}
+
+
+.fare-empty-state p {
+  max-width: 520px;
+
+  margin: 0 auto;
+
+  color: #657d99;
+
+  font-size: 9px;
+
+  line-height: 1.7;
+}
+
+
+.fare-example-routes {
+  display: flex;
+
+  justify-content: center;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  margin-top: 18px;
+}
+
+
+.fare-example-routes button {
+  padding: 8px 12px;
+
+  border:
+    1px solid
+    rgba(148, 163, 184, 0.11);
+
+  border-radius: 8px;
+
+  background:
+    rgba(255, 255, 255, 0.025);
+
+  color: #7daef2;
+
+  font-size: 8px;
+
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+
+.fare-example-routes button:hover {
+  background:
+    rgba(59, 130, 246, 0.07);
 }
 
 
@@ -762,23 +1449,45 @@
    RESPONSIVE
 ============================================================ */
 
-@media (max-width: 900px) {
+@media (max-width: 1000px) {
 
-  .search-box {
-    grid-template-columns: 1fr 1fr;
+  .fare-search-form {
+    grid-template-columns:
+      1fr
+      52px
+      1fr
+      160px;
   }
 
-  .route-arrow {
-    display: none;
+
+  .best-fare-grid {
+    grid-template-columns:
+      repeat(2, 1fr);
   }
 
-  .best-fare-content {
+}
+
+
+@media (max-width: 800px) {
+
+  .fare-grid {
+    grid-template-columns: 1fr;
+  }
+
+
+  .fare-search-form {
     grid-template-columns:
       1fr 1fr;
   }
 
-  .fare-grid {
-    grid-template-columns: 1fr;
+
+  .route-swap-button {
+    width: 100%;
+  }
+
+
+  .fare-search-submit {
+    grid-column: span 2;
   }
 
 }
@@ -786,42 +1495,71 @@
 
 @media (max-width: 600px) {
 
-  .search-navbar {
-    height: auto;
+  .fare-search-container {
+    width: 94%;
 
-    padding: 18px 6%;
-
-    flex-direction: column;
-
-    gap: 15px;
+    padding-top: 25px;
   }
 
-  .search-nav-links {
-    gap: 15px;
+
+  .fare-search-hero {
+    padding: 27px 21px;
   }
 
-  .search-header h1 {
-    font-size: 35px;
+
+  .fare-search-hero h1 {
+    font-size: 31px;
   }
 
-  .search-box {
-    grid-template-columns: 1fr;
+
+  .fare-search-box {
+    padding: 19px;
   }
 
-  .route-arrow {
-    display: none;
-  }
 
-  .best-fare-content {
-    grid-template-columns: 1fr;
-  }
-
-  .results-header {
+  .fare-search-box-header {
     flex-direction: column;
 
     align-items: flex-start;
+  }
 
-    gap: 15px;
+
+  .fare-search-form {
+    grid-template-columns: 1fr;
+  }
+
+
+  .fare-search-submit {
+    grid-column: auto;
+  }
+
+
+  .fare-results-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+
+  .best-fare-grid {
+    grid-template-columns: 1fr;
+  }
+
+
+  .fare-details {
+    grid-template-columns: 1fr 1fr;
+  }
+
+
+  .fare-analysis {
+    grid-template-columns: 1fr 1fr;
+  }
+
+
+  .fare-all-header {
+    align-items: flex-start;
+
+    flex-direction: column;
   }
 
 }

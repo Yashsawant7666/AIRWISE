@@ -3,295 +3,658 @@ import { Link } from "react-router-dom";
 
 import "./RouteComparison.css";
 
+
 const API_URL =
   import.meta.env.VITE_API_URL ||
   "https://airwise-api.onrender.com";
 
-function RouteComparison() {
-  const [origin, setOrigin] = useState("DEL");
-  const [destination, setDestination] = useState("BOM");
 
-  const [fares, setFares] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [searched, setSearched] = useState(false);
-  const [error, setError] = useState("");
+function RouteComparison() {
+
+  const [origin, setOrigin] =
+    useState("DEL");
+
+  const [destination, setDestination] =
+    useState("BOM");
+
+  const [fares, setFares] =
+    useState([]);
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [searched, setSearched] =
+    useState(false);
+
+  const [error, setError] =
+    useState("");
+
+
+  // ==========================================================
+  // COMPARE ROUTE
+  // ==========================================================
 
   const compareRoute = async (event) => {
+
     event.preventDefault();
 
-    const from = origin.trim().toUpperCase();
-    const to = destination.trim().toUpperCase();
+
+    const from =
+      origin
+        .trim()
+        .toUpperCase();
+
+    const to =
+      destination
+        .trim()
+        .toUpperCase();
+
 
     if (
       from.length !== 3 ||
       to.length !== 3
     ) {
+
       setError(
         "Please enter valid 3-letter airport codes."
       );
+
       return;
+
     }
 
+
     try {
+
       setLoading(true);
+
       setError("");
+
       setSearched(true);
+
       setFares([]);
 
-      const response = await fetch(
-        `${API_URL}/search?origin=${encodeURIComponent(
-          from
-        )}&destination=${encodeURIComponent(to)}`
+
+      const response =
+        await fetch(
+          `${API_URL}/search?origin=${encodeURIComponent(
+            from
+          )}&destination=${encodeURIComponent(
+            to
+          )}`
+        );
+
+
+      const data =
+        await response.json();
+
+
+      console.log(
+        "AIRWISE COMPARISON:",
+        data
       );
 
-      const data = await response.json();
 
       if (
         !response.ok ||
         data.status !== "success"
       ) {
+
         throw new Error(
           data.message ||
-            "No fare data found."
+          "No fare data found."
         );
+
       }
 
-      setFares(data.fares || []);
+
+      setFares(
+        Array.isArray(data.fares)
+          ? data.fares
+          : []
+      );
 
     } catch (err) {
-      console.error(err);
+
+      console.error(
+        "COMPARISON ERROR:",
+        err
+      );
+
 
       setError(
         err.message ||
-          "Unable to connect to AIRWISE API."
+        "Unable to connect to AIRWISE API."
       );
+
     } finally {
+
       setLoading(false);
+
     }
+
   };
 
 
-  const money = (value) => {
-    return `₹${Number(
-      value || 0
-    ).toLocaleString("en-IN")}`;
-  };
+  // ==========================================================
+  // HELPERS
+  // ==========================================================
 
+  const money =
+    (value) => {
+
+      const number =
+        Number(value || 0);
+
+
+      if (
+        Number.isNaN(number)
+      ) {
+
+        return "₹0";
+
+      }
+
+
+      return `₹${number.toLocaleString(
+        "en-IN"
+      )}`;
+
+    };
+
+
+  const recommendationClass =
+    (recommendation) => {
+
+      const value =
+        String(
+          recommendation || ""
+        ).toUpperCase();
+
+
+      if (
+        value === "BOOK NOW"
+      ) {
+
+        return "compare-book";
+
+      }
+
+
+      if (
+        value === "WAIT"
+      ) {
+
+        return "compare-wait";
+
+      }
+
+
+      return "compare-monitor";
+
+    };
+
+
+  // ==========================================================
+  // AIRLINE GROUPING
+  // ==========================================================
 
   const airlineMap = {};
 
-  fares.forEach((fare) => {
-    const airline =
-      fare.airline || "Unknown";
 
-    if (!airlineMap[airline]) {
+  fares.forEach((fare) => {
+
+    const airline =
+      fare.airline ||
+      "Unknown";
+
+
+    if (
+      !airlineMap[airline]
+    ) {
+
       airlineMap[airline] = [];
+
     }
 
-    airlineMap[airline].push(fare);
+
+    airlineMap[airline].push(
+      fare
+    );
+
   });
 
 
-  const airlines = Object.keys(
-    airlineMap
-  ).map((airline) => {
+  // ==========================================================
+  // AIRLINE ANALYTICS
+  // ==========================================================
 
-    const airlineFares =
-      airlineMap[airline];
+  const airlines =
+    Object.keys(
+      airlineMap
+    ).map((airline) => {
 
-    const cheapestFare =
-      [...airlineFares].sort(
-        (a, b) =>
-          Number(
-            a.current_fare || 0
-          ) -
-          Number(
-            b.current_fare || 0
-          )
-      )[0];
 
-    const averageFare =
-      airlineFares.reduce(
-        (sum, fare) =>
-          sum +
-          Number(
-            fare.current_fare || 0
-          ),
-        0
-      ) /
-      airlineFares.length;
+      const airlineFares =
+        airlineMap[airline];
 
-    const averageExpected =
-      airlineFares.reduce(
-        (sum, fare) =>
-          sum +
-          Number(
-            fare.expected_fare || 0
-          ),
-        0
-      ) /
-      airlineFares.length;
 
-    const difference =
-      averageFare -
-      averageExpected;
+      const cheapestFare =
+        [...airlineFares]
+          .sort(
+            (a, b) =>
+              Number(
+                a.current_fare ||
+                a.total_fare ||
+                0
+              ) -
+              Number(
+                b.current_fare ||
+                b.total_fare ||
+                0
+              )
+          )[0];
 
-    const differencePercent =
-      averageExpected === 0
-        ? 0
-        : (difference /
-            averageExpected) *
-          100;
 
-    return {
-      airline,
-      cheapestFare,
-      averageFare,
-      averageExpected,
-      differencePercent
-    };
-  });
+      const averageFare =
+        airlineFares.reduce(
+          (
+            sum,
+            fare
+          ) =>
+            sum +
+            Number(
+              fare.current_fare ||
+              fare.total_fare ||
+              0
+            ),
+          0
+        ) /
+        airlineFares.length;
+
+
+      const averageExpected =
+        airlineFares.reduce(
+          (
+            sum,
+            fare
+          ) =>
+            sum +
+            Number(
+              fare.expected_fare ||
+              0
+            ),
+          0
+        ) /
+        airlineFares.length;
+
+
+      const difference =
+        averageFare -
+        averageExpected;
+
+
+      const differencePercent =
+        averageExpected === 0
+          ? 0
+          : (
+              difference /
+              averageExpected
+            ) * 100;
+
+
+      return {
+
+        airline,
+
+        cheapestFare,
+
+        averageFare,
+
+        averageExpected,
+
+        differencePercent,
+
+      };
+
+    });
+
+
+  // ==========================================================
+  // SORT AIRLINES
+  // ==========================================================
+
+  const sortedAirlines =
+    [...airlines].sort(
+      (a, b) =>
+        Number(
+          a.cheapestFare?.current_fare ||
+          a.cheapestFare?.total_fare ||
+          0
+        ) -
+        Number(
+          b.cheapestFare?.current_fare ||
+          b.cheapestFare?.total_fare ||
+          0
+        )
+    );
 
 
   const bestAirline =
-    airlines.length > 0
-      ? [...airlines].sort(
-          (a, b) =>
-            Number(
-              a.cheapestFare.current_fare
-            ) -
-            Number(
-              b.cheapestFare.current_fare
-            )
-        )[0]
+    sortedAirlines.length > 0
+      ? sortedAirlines[0]
       : null;
 
 
-  const recommendationClass = (
-    recommendation
-  ) => {
+  // ==========================================================
+  // SUMMARY
+  // ==========================================================
 
-    const value =
-      String(
-        recommendation || ""
-      ).toUpperCase();
+  const averageRouteFare =
+    fares.length > 0
+      ? fares.reduce(
+          (
+            sum,
+            fare
+          ) =>
+            sum +
+            Number(
+              fare.current_fare ||
+              fare.total_fare ||
+              0
+            ),
+          0
+        ) / fares.length
+      : 0;
 
-    if (value === "BOOK NOW") {
-      return "book";
-    }
 
-    if (value === "WAIT") {
-      return "wait";
-    }
+  const bestPrice =
+    bestAirline?.cheapestFare
+      ?.current_fare ||
+    bestAirline?.cheapestFare
+      ?.total_fare ||
+    0;
 
-    return "monitor";
-  };
 
+  const bestExpected =
+    bestAirline?.cheapestFare
+      ?.expected_fare ||
+    0;
+
+
+  const savings =
+    Number(bestExpected) -
+    Number(bestPrice);
+
+
+  // ==========================================================
+  // PAGE
+  // ==========================================================
 
   return (
+
     <div className="comparison-page">
 
       <main className="comparison-main">
 
+
+        {/* ====================================================
+            HERO
+        ==================================================== */}
+
         <section className="comparison-header">
+
+          <div className="comparison-header-glow"></div>
+
 
           <span>
             AIRWISE MARKET INTELLIGENCE
           </span>
 
+
           <h1>
-            Route & Airline Comparison
+            Compare the market.
+            <br />
+            Find the better fare.
           </h1>
 
+
           <p>
-            Compare available airlines and identify
-            the best fare for a route.
+            Compare airlines, observed fares,
+            expected pricing and AIRWISE
+            booking signals for a selected route.
           </p>
+
+
+          <div className="comparison-meta">
+
+            <div>
+              <strong>
+                ROUTE
+              </strong>
+
+              <span>
+                {origin} → {destination}
+              </span>
+            </div>
+
+
+            <div>
+              <strong>
+                ANALYSIS
+              </strong>
+
+              <span>
+                AIRLINE + FARE
+              </span>
+            </div>
+
+
+            <div>
+              <strong>
+                SIGNAL
+              </strong>
+
+              <span>
+                AI DECISION
+              </span>
+            </div>
+
+          </div>
 
         </section>
 
 
-        <form
-          className="comparison-search"
-          onSubmit={compareRoute}
-        >
+        {/* ====================================================
+            SEARCH
+        ==================================================== */}
 
-          <div>
+        <section className="comparison-search">
 
-            <label>
-              Origin
-            </label>
+          <div className="comparison-search-heading">
 
-            <input
-              value={origin}
-              maxLength={3}
-              onChange={(e) =>
-                setOrigin(
-                  e.target.value.toUpperCase()
-                )
-              }
-            />
+            <div>
 
-          </div>
+              <span>
+                ROUTE ANALYZER
+              </span>
 
 
-          <div className="comparison-arrow">
-            →
-          </div>
+              <h2>
+                Select a route
+              </h2>
+
+            </div>
 
 
-          <div>
-
-            <label>
-              Destination
-            </label>
-
-            <input
-              value={destination}
-              maxLength={3}
-              onChange={(e) =>
-                setDestination(
-                  e.target.value.toUpperCase()
-                )
-              }
-            />
+            <span className="comparison-live">
+              ● AIRFARE DATA
+            </span>
 
           </div>
 
 
-          <button
-            type="submit"
-            disabled={loading}
+          <form
+            className="comparison-form"
+            onSubmit={compareRoute}
           >
-            {loading
-              ? "Comparing..."
-              : "Compare Airlines"}
-          </button>
 
-        </form>
 
+            <div className="compare-field">
+
+              <label>
+                FROM
+              </label>
+
+
+              <input
+                value={origin}
+                maxLength={3}
+                onChange={(e) =>
+                  setOrigin(
+                    e.target.value
+                      .toUpperCase()
+                      .replace(
+                        /[^A-Z]/g,
+                        ""
+                      )
+                  )
+                }
+              />
+
+
+              <small>
+                Origin airport
+              </small>
+
+            </div>
+
+
+            <button
+              type="button"
+              className="compare-swap"
+              onClick={() => {
+
+                setOrigin(
+                  destination
+                );
+
+                setDestination(
+                  origin
+                );
+
+              }}
+            >
+              ⇄
+            </button>
+
+
+            <div className="compare-field">
+
+              <label>
+                TO
+              </label>
+
+
+              <input
+                value={destination}
+                maxLength={3}
+                onChange={(e) =>
+                  setDestination(
+                    e.target.value
+                      .toUpperCase()
+                      .replace(
+                        /[^A-Z]/g,
+                        ""
+                      )
+                  )
+                }
+              />
+
+
+              <small>
+                Destination airport
+              </small>
+
+            </div>
+
+
+            <button
+              type="submit"
+              className="compare-button"
+              disabled={loading}
+            >
+
+              {loading
+                ? "ANALYZING..."
+                : "COMPARE AIRLINES →"}
+
+            </button>
+
+          </form>
+
+        </section>
+
+
+        {/* ====================================================
+            ERROR
+        ==================================================== */}
 
         {error && (
+
           <div className="comparison-error">
-            {error}
+
+            <span>
+              !
+            </span>
+
+
+            <div>
+
+              <strong>
+                Comparison unavailable
+              </strong>
+
+
+              <p>
+                {error}
+              </p>
+
+            </div>
+
           </div>
+
         )}
 
+
+        {/* ====================================================
+            LOADING
+        ==================================================== */}
 
         {loading && (
+
           <div className="comparison-loading">
+
             <div className="comparison-spinner"></div>
 
+
             <h3>
-              Comparing airline fares...
+              Analyzing the route
             </h3>
 
+
             <p>
-              AIRWISE is analyzing the route.
+              AIRWISE is comparing available airline fares.
             </p>
+
           </div>
+
         )}
 
+
+        {/* ====================================================
+            RESULTS
+        ==================================================== */}
 
         {!loading &&
           searched &&
@@ -299,255 +662,445 @@ function RouteComparison() {
 
             <>
 
-              <section className="best-option">
+              {/* ================================================
+                  SUMMARY
+              ================================================= */}
 
-                <div className="best-option-badge">
-                  ★ BEST AVAILABLE OPTION
+              <section className="comparison-summary">
+
+
+                <div className="compare-stat featured">
+
+                  <span>
+                    BEST FARE
+                  </span>
+
+
+                  <strong>
+                    {money(bestPrice)}
+                  </strong>
+
+
+                  <small>
+                    Lowest observed fare
+                  </small>
+
                 </div>
 
 
-                <div className="best-option-grid">
+                <div className="compare-stat">
+
+                  <span>
+                    ROUTE AVERAGE
+                  </span>
+
+
+                  <strong>
+                    {money(
+                      averageRouteFare
+                    )}
+                  </strong>
+
+
+                  <small>
+                    Across available fares
+                  </small>
+
+                </div>
+
+
+                <div className="compare-stat">
+
+                  <span>
+                    AIRLINES
+                  </span>
+
+
+                  <strong>
+                    {airlines.length}
+                  </strong>
+
+
+                  <small>
+                    Compared
+                  </small>
+
+                </div>
+
+
+                <div className="compare-stat">
+
+                  <span>
+                    POTENTIAL SAVING
+                  </span>
+
+
+                  <strong
+                    className={
+                      savings > 0
+                        ? "saving"
+                        : ""
+                    }
+                  >
+                    {savings > 0
+                      ? money(savings)
+                      : "—"}
+                  </strong>
+
+
+                  <small>
+                    Vs expected fare
+                  </small>
+
+                </div>
+
+              </section>
+
+
+              {/* ================================================
+                  BEST OPTION
+              ================================================= */}
+
+              {bestAirline && (
+
+                <section className="best-option">
+
+                  <div className="best-option-glow"></div>
+
+
+                  <div className="best-option-badge">
+                    ★ BEST AVAILABLE OPTION
+                  </div>
+
+
+                  <div className="best-option-content">
+
+                    <div className="best-airline-name">
+
+                      <span>
+                        LOWEST OBSERVED FARE
+                      </span>
+
+
+                      <h2>
+                        {bestAirline.airline}
+                      </h2>
+
+
+                      <p>
+                        {origin} → {destination}
+                      </p>
+
+                    </div>
+
+
+                    <div className="best-price">
+
+                      <span>
+                        CURRENT FARE
+                      </span>
+
+
+                      <strong>
+                        {money(
+                          bestPrice
+                        )}
+                      </strong>
+
+                    </div>
+
+
+                    <div className="best-price">
+
+                      <span>
+                        EXPECTED
+                      </span>
+
+
+                      <strong>
+                        {money(
+                          bestExpected
+                        )}
+                      </strong>
+
+                    </div>
+
+
+                    <div className="best-decision">
+
+                      <span>
+                        AIRWISE DECISION
+                      </span>
+
+
+                      <strong
+                        className={
+                          recommendationClass(
+                            bestAirline
+                              .cheapestFare
+                              ?.recommendation
+                          )
+                        }
+                      >
+
+                        {bestAirline
+                          .cheapestFare
+                          ?.recommendation ||
+                          "MONITOR"}
+
+                      </strong>
+
+                    </div>
+
+                  </div>
+
+                </section>
+
+              )}
+
+
+              {/* ================================================
+                  AIRLINE CARDS
+              ================================================= */}
+
+              <section>
+
+                <div className="comparison-section-title">
 
                   <div>
 
                     <span>
-                      AIRLINE
+                      MARKET BREAKDOWN
                     </span>
 
+
                     <h2>
-                      {bestAirline.airline}
+                      Airline Comparison
                     </h2>
 
                   </div>
 
 
-                  <div>
+                  <span>
+                    {airlines.length} airlines
+                  </span>
 
-                    <span>
-                      LOWEST FARE
-                    </span>
-
-                    <strong>
-                      {money(
-                        bestAirline
-                          .cheapestFare
-                          .current_fare
-                      )}
-                    </strong>
-
-                  </div>
+                </div>
 
 
-                  <div>
+                <div className="airline-grid">
 
-                    <span>
-                      EXPECTED FARE
-                    </span>
+                  {sortedAirlines.map(
+                    (airline, index) => (
 
-                    <strong>
-                      {money(
-                        bestAirline
-                          .cheapestFare
-                          .expected_fare
-                      )}
-                    </strong>
+                      <article
+                        className={
+                          `airline-card ${
+                            index === 0
+                              ? "winner"
+                              : ""
+                          }`
+                        }
+                        key={
+                          airline.airline
+                        }
+                      >
 
-                  </div>
+
+                        {index === 0 && (
+
+                          <div className="winner-badge">
+                            BEST PRICE
+                          </div>
+
+                        )}
 
 
-                  <div>
+                        <div className="airline-card-header">
 
-                    <span>
-                      DECISION
-                    </span>
+                          <div>
 
-                    <strong
-                      className={
-                        recommendationClass(
-                          bestAirline
-                            .cheapestFare
-                            .recommendation
-                        )
-                      }
-                    >
-                      {
-                        bestAirline
-                          .cheapestFare
-                          .recommendation
-                      }
-                    </strong>
+                            <span>
+                              AIRLINE
+                            </span>
 
-                  </div>
+
+                            <h2>
+                              {airline.airline}
+                            </h2>
+
+                          </div>
+
+
+                          <div className="airline-rank">
+
+                            #{index + 1}
+
+                          </div>
+
+                        </div>
+
+
+                        <div className="comparison-main-price">
+
+                          <span>
+                            LOWEST FARE
+                          </span>
+
+
+                          <strong>
+                            {money(
+                              airline
+                                .cheapestFare
+                                ?.current_fare ||
+                              airline
+                                .cheapestFare
+                                ?.total_fare
+                            )}
+                          </strong>
+
+                        </div>
+
+
+                        <div className="comparison-metrics">
+
+                          <div>
+
+                            <span>
+                              EXPECTED
+                            </span>
+
+
+                            <strong>
+                              {money(
+                                airline
+                                  .cheapestFare
+                                  ?.expected_fare
+                              )}
+                            </strong>
+
+                          </div>
+
+
+                          <div>
+
+                            <span>
+                              AVG FARE
+                            </span>
+
+
+                            <strong>
+                              {money(
+                                airline.averageFare
+                              )}
+                            </strong>
+
+                          </div>
+
+                        </div>
+
+
+                        <div className="comparison-difference">
+
+                          <span>
+                            VS EXPECTED
+                          </span>
+
+
+                          <strong
+                            className={
+                              airline.differencePercent <= 0
+                                ? "good"
+                                : "bad"
+                            }
+                          >
+
+                            {airline
+                              .differencePercent <= 0
+                              ? ""
+                              : "+"}
+
+                            {airline
+                              .differencePercent
+                              .toFixed(2)}
+                            %
+
+                          </strong>
+
+                        </div>
+
+
+                        <div className="comparison-recommendation">
+
+                          <div>
+
+                            <span>
+                              AIRWISE DECISION
+                            </span>
+
+
+                            <strong
+                              className={
+                                recommendationClass(
+                                  airline
+                                    .cheapestFare
+                                    ?.recommendation
+                                )
+                              }
+                            >
+
+                              {airline
+                                .cheapestFare
+                                ?.recommendation ||
+                                "MONITOR"}
+
+                            </strong>
+
+                          </div>
+
+
+                          <Link
+                            to={`/fare/${airline.cheapestFare.id}`}
+                            className="view-analysis"
+                          >
+                            Analyze →
+                          </Link>
+
+                        </div>
+
+                      </article>
+
+                    )
+                  )}
 
                 </div>
 
               </section>
 
 
-              <h2 className="comparison-title">
-                Airline Comparison
-              </h2>
-
-
-              <section className="airline-grid">
-
-                {airlines.map(
-                  (airline) => (
-
-                    <article
-                      className={
-                        `airline-card ${
-                          bestAirline.airline ===
-                          airline.airline
-                            ? "winner"
-                            : ""
-                        }`
-                      }
-                      key={
-                        airline.airline
-                      }
-                    >
-
-                      {bestAirline.airline ===
-                        airline.airline && (
-
-                        <div className="winner-badge">
-                          BEST PRICE
-                        </div>
-
-                      )}
-
-
-                      <div className="airline-card-header">
-
-                        <span>
-                          AIRLINE
-                        </span>
-
-                        <h2>
-                          {airline.airline}
-                        </h2>
-
-                      </div>
-
-
-                      <div className="comparison-metric">
-
-                        <span>
-                          LOWEST FARE
-                        </span>
-
-                        <strong>
-                          {money(
-                            airline
-                              .cheapestFare
-                              .current_fare
-                          )}
-                        </strong>
-
-                      </div>
-
-
-                      <div className="comparison-row">
-
-                        <span>
-                          Expected Fare
-                        </span>
-
-                        <strong>
-                          {money(
-                            airline
-                              .cheapestFare
-                              .expected_fare
-                          )}
-                        </strong>
-
-                      </div>
-
-
-                      <div className="comparison-row">
-
-                        <span>
-                          Average Fare
-                        </span>
-
-                        <strong>
-                          {money(
-                            airline.averageFare
-                          )}
-                        </strong>
-
-                      </div>
-
-
-                      <div className="comparison-row">
-
-                        <span>
-                          Difference
-                        </span>
-
-                        <strong
-                          className={
-                            airline
-                              .differencePercent <= 0
-                              ? "good"
-                              : "bad"
-                          }
-                        >
-                          {airline
-                            .differencePercent
-                            .toFixed(2)}
-                          %
-                        </strong>
-
-                      </div>
-
-
-                      <div className="comparison-recommendation">
-
-                        <span>
-                          AIRWISE DECISION
-                        </span>
-
-                        <strong
-                          className={
-                            recommendationClass(
-                              airline
-                                .cheapestFare
-                                .recommendation
-                            )
-                          }
-                        >
-                          {
-                            airline
-                              .cheapestFare
-                              .recommendation
-                          }
-                        </strong>
-
-                      </div>
-
-
-                      <Link
-                        to={`/fare/${airline.cheapestFare.id}`}
-                        className="view-analysis"
-                      >
-                        View AI Analysis →
-                      </Link>
-
-                    </article>
-
-                  )
-                )}
-
-              </section>
-
+              {/* ================================================
+                  TABLE
+              ================================================= */}
 
               <section className="comparison-table-section">
 
-                <h2>
-                  Side-by-Side Comparison
-                </h2>
+                <div className="comparison-section-title">
+
+                  <div>
+
+                    <span>
+                      DETAILED VIEW
+                    </span>
+
+
+                    <h2>
+                      Side-by-Side Comparison
+                    </h2>
+
+                  </div>
+
+                </div>
+
 
                 <div className="comparison-table-wrapper">
 
@@ -558,27 +1111,27 @@ function RouteComparison() {
                       <tr>
 
                         <th>
-                          Airline
+                          AIRLINE
                         </th>
 
                         <th>
-                          Lowest Fare
+                          LOWEST
                         </th>
 
                         <th>
-                          Expected
+                          EXPECTED
                         </th>
 
                         <th>
-                          Difference
+                          DIFFERENCE
                         </th>
 
                         <th>
-                          Anomaly
+                          ANOMALY
                         </th>
 
                         <th>
-                          Decision
+                          DECISION
                         </th>
 
                       </tr>
@@ -588,12 +1141,13 @@ function RouteComparison() {
 
                     <tbody>
 
-                      {airlines.map(
+                      {sortedAirlines.map(
                         (airline) => {
 
                           const fare =
                             airline
                               .cheapestFare;
+
 
                           return (
 
@@ -604,57 +1158,105 @@ function RouteComparison() {
                             >
 
                               <td>
+
                                 <strong>
                                   {
                                     airline.airline
                                   }
                                 </strong>
+
                               </td>
 
+
                               <td>
+
                                 {money(
-                                  fare.current_fare
+                                  fare.current_fare ||
+                                  fare.total_fare
                                 )}
+
                               </td>
 
+
                               <td>
+
                                 {money(
                                   fare.expected_fare
                                 )}
+
                               </td>
+
 
                               <td
                                 className={
                                   Number(
-                                    fare.fare_difference_percent ||
-                                      0
+                                    fare
+                                      .fare_difference_percent ||
+                                    0
                                   ) <= 0
                                     ? "good"
                                     : "bad"
                                 }
                               >
+
                                 {Number(
-                                  fare.fare_difference_percent ||
-                                    0
+                                  fare
+                                    .fare_difference_percent ||
+                                  0
+                                ) > 0
+                                  ? "+"
+                                  : ""}
+
+                                {Number(
+                                  fare
+                                    .fare_difference_percent ||
+                                  0
                                 ).toFixed(2)}
+
                                 %
+
                               </td>
 
-                              <td>
-                                {
-                                  fare.anomaly_status
-                                }
-                              </td>
 
                               <td>
-                                {
-                                  fare.recommendation
-                                }
+
+                                <span
+                                  className={
+                                    `table-status ${
+                                      String(
+                                        fare
+                                          .anomaly_status ||
+                                        "NORMAL"
+                                      ).toLowerCase()
+                                    }`
+                                  }
+                                >
+                                  {fare.anomaly_status ||
+                                    "NORMAL"}
+                                </span>
+
+                              </td>
+
+
+                              <td>
+
+                                <span
+                                  className={
+                                    recommendationClass(
+                                      fare.recommendation
+                                    )
+                                  }
+                                >
+                                  {fare.recommendation ||
+                                    "MONITOR"}
+                                </span>
+
                               </td>
 
                             </tr>
 
                           );
+
                         }
                       )}
 
@@ -671,6 +1273,10 @@ function RouteComparison() {
           )}
 
 
+        {/* ====================================================
+            EMPTY
+        ==================================================== */}
+
         {!loading &&
           searched &&
           airlines.length === 0 &&
@@ -678,12 +1284,24 @@ function RouteComparison() {
 
             <div className="no-results">
 
+              <div>
+                ?
+              </div>
+
+
+              <span>
+                NO MARKET DATA
+              </span>
+
+
               <h2>
                 No fare data found
               </h2>
 
+
               <p>
-                Try another route.
+                Try another route with available
+                AIRWISE fare observations.
               </p>
 
             </div>
@@ -693,7 +1311,10 @@ function RouteComparison() {
       </main>
 
     </div>
+
   );
+
 }
+
 
 export default RouteComparison;

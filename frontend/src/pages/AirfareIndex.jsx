@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   LineChart,
@@ -8,20 +8,14 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  ReferenceLine,
 } from "recharts";
 
 import "./AirfareIndex.css";
 
 
-/*
-  LOCAL TESTING
-
-  Your replay observations are currently stored
-  in local PostgreSQL.
-
-  Therefore this page uses local FastAPI.
-*/
 const API_URL =
+  import.meta.env.VITE_API_URL ||
   "https://airwise-api.onrender.com";
 
 
@@ -36,74 +30,60 @@ function AirfareIndex() {
   const [loading, setLoading] =
     useState(true);
 
+  const [refreshing, setRefreshing] =
+    useState(false);
+
   const [error, setError] =
     useState("");
 
 
   // ==========================================================
-  // LOAD CURRENT INDEX
+  // LOAD MAIN INDEX
   // ==========================================================
 
   const loadIndex = async () => {
 
-    try {
-
-      const response =
-        await fetch(
-          `${API_URL}/index`
-        );
-
-
-      if (!response.ok) {
-
-        throw new Error(
-          `Index API returned ${response.status}`
-        );
-
-      }
-
-
-      const data =
-        await response.json();
-
-
-      console.log(
-        "AIRWISE INDEX RESPONSE:",
-        data
+    const response =
+      await fetch(
+        `${API_URL}/index`,
+        {
+          cache: "no-store",
+        }
       );
 
 
-      if (
-        data.status !==
-        "success"
-      ) {
+    if (!response.ok) {
 
-        throw new Error(
-          data.message ||
-          "Unable to load Airfare Index."
-        );
-
-      }
-
-
-      setIndexData(
-        data
-      );
-
-    } catch (err) {
-
-      console.error(
-        "AIRFARE INDEX ERROR:",
-        err
-      );
-
-
-      setError(
-        err.message ||
-        "Unable to connect to AIRWISE API."
+      throw new Error(
+        `Index API returned ${response.status}`
       );
 
     }
+
+
+    const data =
+      await response.json();
+
+
+    console.log(
+      "AIRWISE INDEX RESPONSE:",
+      data
+    );
+
+
+    if (
+      data.status !== "success"
+    ) {
+
+      throw new Error(
+        data.message ||
+        "Unable to load Airfare Index."
+      );
+
+    }
+
+
+    setIndexData(data);
 
   };
 
@@ -112,57 +92,51 @@ function AirfareIndex() {
   // LOAD HOURLY INDEX
   // ==========================================================
 
-  const loadHourlyIndex =
-    async () => {
+  const loadHourlyIndex = async () => {
 
-      try {
-
-        const response =
-          await fetch(
-            `${API_URL}/index/hourly`
-          );
-
-
-        if (!response.ok) {
-
-          throw new Error(
-            `Hourly API returned ${response.status}`
-          );
-
+    const response =
+      await fetch(
+        `${API_URL}/index/hourly`,
+        {
+          cache: "no-store",
         }
+      );
 
 
-        const data =
-          await response.json();
+    if (!response.ok) {
+
+      throw new Error(
+        `Hourly API returned ${response.status}`
+      );
+
+    }
 
 
-        console.log(
-          "AIRWISE HOURLY RESPONSE:",
-          data
-        );
+    const data =
+      await response.json();
 
 
-        if (
-          data.status ===
-          "success"
-        ) {
+    console.log(
+      "AIRWISE HOURLY RESPONSE:",
+      data
+    );
 
-          setHourlyData(
-            data
-          );
 
-        }
+    if (
+      data.status !== "success"
+    ) {
 
-      } catch (err) {
+      throw new Error(
+        data.message ||
+        "Unable to load hourly index."
+      );
 
-        console.warn(
-          "HOURLY API ERROR:",
-          err
-        );
+    }
 
-      }
 
-    };
+    setHourlyData(data);
+
+  };
 
 
   // ==========================================================
@@ -177,6 +151,7 @@ function AirfareIndex() {
         try {
 
           setLoading(true);
+
           setError("");
 
 
@@ -184,6 +159,19 @@ function AirfareIndex() {
             loadIndex(),
             loadHourlyIndex(),
           ]);
+
+        } catch (err) {
+
+          console.error(
+            "AIRWISE INDEX ERROR:",
+            err
+          );
+
+
+          setError(
+            err.message ||
+            "Unable to connect to AIRWISE API."
+          );
 
         } finally {
 
@@ -205,13 +193,43 @@ function AirfareIndex() {
 
   useEffect(() => {
 
+    const refreshData =
+      async () => {
+
+        try {
+
+          setRefreshing(true);
+
+
+          await Promise.all([
+            loadIndex(),
+            loadHourlyIndex(),
+          ]);
+
+
+          setError("");
+
+        } catch (err) {
+
+          console.error(
+            "AIRWISE REFRESH ERROR:",
+            err
+          );
+
+        } finally {
+
+          setRefreshing(false);
+
+        }
+
+      };
+
+
     const interval =
-      setInterval(() => {
-
-        loadIndex();
-        loadHourlyIndex();
-
-      }, 60000);
+      setInterval(
+        refreshData,
+        60000
+      );
 
 
     return () => {
@@ -227,220 +245,174 @@ function AirfareIndex() {
   // FORMAT MONEY
   // ==========================================================
 
-  const money =
-    (value) => {
+  const money = (value) => {
 
-      const number =
-        Number(value);
+    const number =
+      Number(value);
 
 
-      if (
-        Number.isNaN(number)
-      ) {
+    if (
+      Number.isNaN(number)
+    ) {
 
-        return "₹0";
+      return "₹0";
 
+    }
+
+
+    return `₹${number.toLocaleString(
+      "en-IN",
+      {
+        maximumFractionDigits: 0,
       }
+    )}`;
 
-
-      return `₹${number.toLocaleString(
-        "en-IN",
-        {
-          maximumFractionDigits: 0,
-        }
-      )}`;
-
-    };
+  };
 
 
   // ==========================================================
-  // FORMAT CHANGE
+  // FORMAT PERCENTAGE
   // ==========================================================
 
-  const formatChange =
-    (value) => {
+  const formatChange = (value) => {
 
-      if (
-        value === null ||
-        value === undefined
-      ) {
+    if (
+      value === null ||
+      value === undefined
+    ) {
 
-        return "--";
+      return "--";
 
-      }
-
-
-      const number =
-        Number(value);
+    }
 
 
-      if (
-        Number.isNaN(number)
-      ) {
-
-        return "--";
-
-      }
+    const number =
+      Number(value);
 
 
-      return `${
-        number >= 0
-          ? "+"
-          : ""
-      }${number.toFixed(2)}%`;
+    if (
+      Number.isNaN(number)
+    ) {
 
-    };
+      return "--";
+
+    }
+
+
+    return `${
+      number >= 0
+        ? "+"
+        : ""
+    }${number.toFixed(2)}%`;
+
+  };
 
 
   // ==========================================================
   // CHANGE CLASS
   // ==========================================================
 
-  const changeClass =
-    (value) => {
+  const changeClass = (value) => {
 
-      if (
-        value === null ||
-        value === undefined
-      ) {
+    if (
+      value === null ||
+      value === undefined ||
+      Number.isNaN(Number(value))
+    ) {
 
-        return "neutral";
+      return "neutral";
 
-      }
+    }
 
 
-      return Number(value) >= 0
-        ? "hourly-positive"
-        : "hourly-negative";
+    return Number(value) >= 0
+      ? "hourly-positive"
+      : "hourly-negative";
 
-    };
+  };
 
 
   // ==========================================================
   // PRESSURE CLASS
   // ==========================================================
 
-  const pressureClass =
-    (pressure) => {
+  const pressureClass = (pressure) => {
 
-      if (
-        pressure === "HIGH"
-      ) {
-
-        return "pressure-high";
-
-      }
+    const value =
+      String(
+        pressure || "STABLE"
+      ).toUpperCase();
 
 
-      if (
-        pressure === "ELEVATED"
-      ) {
+    if (
+      value === "HIGH"
+    ) {
 
-        return "pressure-elevated";
+      return "pressure-high";
 
-      }
-
-
-      if (
-        pressure === "LOW"
-      ) {
-
-        return "pressure-low";
-
-      }
+    }
 
 
-      return "pressure-stable";
+    if (
+      value === "ELEVATED"
+    ) {
 
-    };
+      return "pressure-elevated";
+
+    }
+
+
+    if (
+      value === "LOW"
+    ) {
+
+      return "pressure-low";
+
+    }
+
+
+    return "pressure-stable";
+
+  };
 
 
   // ==========================================================
-  // LOADING
+  // DATE FORMAT
   // ==========================================================
 
-  if (loading) {
+  const formatDateTime = (value) => {
 
-    return (
+    if (!value) {
 
-      <div className="index-page">
+      return "--";
 
-        <main className="index-container">
-
-          <div className="index-loading">
-
-            <div className="loading-circle"></div>
+    }
 
 
-            <h2>
-              Loading Airfare Price Index...
-            </h2>
+    const date =
+      new Date(value);
 
 
-            <p>
-              AIRWISE is retrieving airfare intelligence.
-            </p>
+    if (
+      Number.isNaN(
+        date.getTime()
+      )
+    ) {
 
-          </div>
+      return String(value);
 
-        </main>
+    }
 
-      </div>
 
+    return date.toLocaleString(
+      "en-IN",
+      {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }
     );
 
-  }
-
-
-  // ==========================================================
-  // ERROR
-  // ==========================================================
-
-  if (
-    error &&
-    !indexData
-  ) {
-
-    return (
-
-      <div className="index-page">
-
-        <main className="index-container">
-
-          <div className="index-error">
-
-            <div className="error-symbol">
-              !
-            </div>
-
-
-            <h2>
-              Airfare Index unavailable
-            </h2>
-
-
-            <p>
-              {error}
-            </p>
-
-
-            <button
-              onClick={() => {
-                window.location.reload();
-              }}
-            >
-              Retry
-            </button>
-
-          </div>
-
-        </main>
-
-      </div>
-
-    );
-
-  }
+  };
 
 
   // ==========================================================
@@ -481,22 +453,6 @@ function AirfareIndex() {
     "--";
 
 
-  const history =
-    Array.isArray(
-      indexData?.history
-    )
-      ? indexData.history
-      : [];
-
-
-  const routes =
-    Array.isArray(
-      indexData?.routes
-    )
-      ? indexData.routes
-      : [];
-
-
   const overallChange =
     Number(
       indexData?.change_percent ??
@@ -515,34 +471,291 @@ function AirfareIndex() {
   // ==========================================================
 
   const last1Hour =
-    hourlyData?.changes?.last_1_hour;
+    hourlyData?.changes?.last_1_hour ??
+    null;
 
 
   const last2Hours =
-    hourlyData?.changes?.last_2_hours;
+    hourlyData?.changes?.last_2_hours ??
+    null;
 
 
   const last6Hours =
-    hourlyData?.changes?.last_6_hours;
+    hourlyData?.changes?.last_6_hours ??
+    null;
 
 
   const last24Hours =
-    hourlyData?.changes?.last_24_hours;
+    hourlyData?.changes?.last_24_hours ??
+    null;
 
 
   const lastUpdated =
-    hourlyData?.last_updated;
+    hourlyData?.last_updated ??
+    null;
 
-
-  // ==========================================================
-  // SNAPSHOT COUNT
-  // ==========================================================
 
   const snapshotCount =
     Number(
       hourlyData?.snapshot_count ||
       0
     );
+
+
+  // ==========================================================
+  // HISTORICAL DATA
+  // ==========================================================
+
+  const history =
+    Array.isArray(
+      indexData?.history
+    )
+      ? indexData.history
+      : [];
+
+
+  // ==========================================================
+  // HOURLY HISTORY
+  // ==========================================================
+
+  const hourlyHistory =
+    useMemo(() => {
+
+      let source = [];
+
+
+      if (
+        Array.isArray(
+          hourlyData?.history
+        )
+      ) {
+
+        source =
+          hourlyData.history;
+
+      } else if (
+        Array.isArray(
+          hourlyData?.snapshots
+        )
+      ) {
+
+        source =
+          hourlyData.snapshots;
+
+      } else if (
+        Array.isArray(
+          hourlyData?.data
+        )
+      ) {
+
+        source =
+          hourlyData.data;
+
+      }
+
+
+      return source
+        .map(
+          (
+            item,
+            index
+          ) => {
+
+            const timestamp =
+              item.timestamp ||
+              item.snapshot_time ||
+              item.recorded_at ||
+              item.created_at ||
+              item.time ||
+              item.datetime;
+
+
+            const indexValue =
+              Number(
+                item.index ??
+                item.current_index ??
+                item.airfare_index ??
+                100
+              );
+
+
+            let chartTime =
+              `H${index + 1}`;
+
+
+            if (
+              timestamp
+            ) {
+
+              const date =
+                new Date(
+                  timestamp
+                );
+
+
+              if (
+                !Number.isNaN(
+                  date.getTime()
+                )
+              ) {
+
+                chartTime =
+                  date.toLocaleTimeString(
+                    "en-IN",
+                    {
+                      hour:
+                        "2-digit",
+
+                      minute:
+                        "2-digit",
+                    }
+                  );
+
+              }
+
+            }
+
+
+            return {
+
+              ...item,
+
+              chartIndex:
+                Number.isNaN(
+                  indexValue
+                )
+                  ? 100
+                  : indexValue,
+
+              chartTime,
+
+              fullTime:
+                timestamp
+                  ? formatDateTime(
+                      timestamp
+                    )
+                  : "--",
+
+            };
+
+          }
+        );
+
+    }, [hourlyData]);
+
+
+  const hasHourlyHistory =
+    hourlyHistory.length > 0;
+
+
+  // ==========================================================
+  // ROUTE DATA
+  // ==========================================================
+
+  const routes =
+    Array.isArray(
+      indexData?.routes
+    )
+      ? indexData.routes
+      : [];
+
+
+  // ==========================================================
+  // LOADING
+  // ==========================================================
+
+  if (loading) {
+
+    return (
+
+      <div className="index-page">
+
+        <main className="index-container">
+
+          <div className="index-loading">
+
+            <div className="loading-circle"></div>
+
+
+            <span>
+              AIRWISE ECONOMIC INTELLIGENCE
+            </span>
+
+
+            <h2>
+              Loading Airfare Price Index...
+            </h2>
+
+
+            <p>
+              Retrieving current and hourly airfare signals.
+            </p>
+
+          </div>
+
+        </main>
+
+      </div>
+
+    );
+
+  }
+
+
+  // ==========================================================
+  // ERROR
+  // ==========================================================
+
+  if (
+    error &&
+    !indexData
+  ) {
+
+    return (
+
+      <div className="index-page">
+
+        <main className="index-container">
+
+          <div className="index-error">
+
+            <div className="error-symbol">
+              !
+            </div>
+
+
+            <span>
+              AIRWISE ECONOMIC INTELLIGENCE
+            </span>
+
+
+            <h2>
+              Airfare Index Unavailable
+            </h2>
+
+
+            <p>
+              {error}
+            </p>
+
+
+            <button
+              onClick={() =>
+                window.location.reload()
+              }
+            >
+              Retry
+            </button>
+
+          </div>
+
+        </main>
+
+      </div>
+
+    );
+
+  }
 
 
   // ==========================================================
@@ -564,9 +777,25 @@ function AirfareIndex() {
 
           <div className="index-hero-content">
 
-            <span className="index-eyebrow">
-              AIRWISE ECONOMIC INTELLIGENCE
-            </span>
+
+            <div className="index-live-line">
+
+              <span className="index-eyebrow">
+                AIRWISE ECONOMIC INTELLIGENCE
+              </span>
+
+
+              <span className="index-update-badge">
+
+                <span className="index-live-dot"></span>
+
+                {refreshing
+                  ? "UPDATING"
+                  : "HOURLY SIGNAL"}
+
+              </span>
+
+            </div>
 
 
             <h1>
@@ -575,10 +804,64 @@ function AirfareIndex() {
 
 
             <p>
-              A statistical indicator designed to
-              track movement in domestic airfare
-              relative to the AIRWISE base period.
+              A high-frequency analytical indicator
+              designed to monitor movement in domestic
+              airfare and provide an airfare signal for
+              CPI augmentation research.
             </p>
+
+
+            <div className="index-hero-metrics">
+
+
+              <div>
+
+                <span>
+                  CURRENT INDEX
+                </span>
+
+
+                <strong>
+                  {currentIndex.toFixed(2)}
+                </strong>
+
+              </div>
+
+
+              <div>
+
+                <span>
+                  BASE INDEX
+                </span>
+
+
+                <strong>
+                  100
+                </strong>
+
+              </div>
+
+
+              <div>
+
+                <span>
+                  PRESSURE
+                </span>
+
+
+                <strong
+                  className={
+                    pressureClass(
+                      pressure
+                    )
+                  }
+                >
+                  {pressure}
+                </strong>
+
+              </div>
+
+            </div>
 
           </div>
 
@@ -599,6 +882,19 @@ function AirfareIndex() {
               Base Index = 100
             </small>
 
+
+            <div className="index-period-divider"></div>
+
+
+            <span>
+              CURRENT PERIOD
+            </span>
+
+
+            <strong className="current-period">
+              {currentPeriod}
+            </strong>
+
           </div>
 
         </section>
@@ -606,13 +902,11 @@ function AirfareIndex() {
 
 
         {/* ====================================================
-            MAIN INDEX CARDS
+            SUMMARY
         ==================================================== */}
 
         <section className="index-summary-grid">
 
-
-          {/* CURRENT INDEX */}
 
           <div className="current-index-card">
 
@@ -643,17 +937,16 @@ function AirfareIndex() {
               {Math.abs(
                 overallChange
               ).toFixed(2)}
-
               %
 
-              {" from base"}
+              <small>
+                from base
+              </small>
 
             </div>
 
           </div>
 
-
-          {/* CURRENT AVERAGE */}
 
           <div className="index-stat-card">
 
@@ -676,8 +969,6 @@ function AirfareIndex() {
           </div>
 
 
-          {/* BASE AVERAGE */}
-
           <div className="index-stat-card">
 
             <span>
@@ -698,8 +989,6 @@ function AirfareIndex() {
 
           </div>
 
-
-          {/* PRESSURE */}
 
           <div className="index-stat-card">
 
@@ -730,7 +1019,7 @@ function AirfareIndex() {
 
 
         {/* ====================================================
-            REAL-TIME HOURLY MOVEMENT
+            HOURLY MOVEMENT
         ==================================================== */}
 
         <section className="hourly-index-panel">
@@ -738,25 +1027,33 @@ function AirfareIndex() {
 
           <div className="hourly-panel-header">
 
-            <div>
+            <div className="hourly-panel-heading-content">
 
-              <span>
+              <div className="hourly-section-label">
+
+                <span className="section-status-dot"></span>
+
                 REAL-TIME AIRFARE MOVEMENT
-              </span>
+
+              </div>
 
 
               <h2>
-                Index Change by Time
+                High-Frequency Index Monitor
               </h2>
+
+
+              <p>
+                Short-term movement calculated from
+                timestamped AIRWISE replay observations.
+              </p>
 
             </div>
 
 
             <div className="hourly-live-badge">
 
-              <span className="live-dot">
-                ●
-              </span>
+              <span className="live-dot"></span>
 
               DEMO / REPLAY
 
@@ -766,7 +1063,7 @@ function AirfareIndex() {
 
 
           {/* ==================================================
-              FOUR TIME WINDOWS
+              FOUR CARDS
           ================================================== */}
 
           <div className="hourly-index-grid">
@@ -776,9 +1073,18 @@ function AirfareIndex() {
 
             <div className="hourly-stat">
 
-              <span>
-                LAST 1 HOUR
-              </span>
+              <div className="hourly-stat-header">
+
+                <span>
+                  LAST 1 HOUR
+                </span>
+
+
+                <span className="hourly-period-icon">
+                  1H
+                </span>
+
+              </div>
 
 
               <strong
@@ -795,7 +1101,7 @@ function AirfareIndex() {
 
 
               <small>
-                hourly movement
+                latest hourly movement
               </small>
 
             </div>
@@ -805,9 +1111,18 @@ function AirfareIndex() {
 
             <div className="hourly-stat">
 
-              <span>
-                LAST 2 HOURS
-              </span>
+              <div className="hourly-stat-header">
+
+                <span>
+                  LAST 2 HOURS
+                </span>
+
+
+                <span className="hourly-period-icon">
+                  2H
+                </span>
+
+              </div>
 
 
               <strong
@@ -834,9 +1149,18 @@ function AirfareIndex() {
 
             <div className="hourly-stat">
 
-              <span>
-                LAST 6 HOURS
-              </span>
+              <div className="hourly-stat-header">
+
+                <span>
+                  LAST 6 HOURS
+                </span>
+
+
+                <span className="hourly-period-icon">
+                  6H
+                </span>
+
+              </div>
 
 
               <strong
@@ -863,9 +1187,18 @@ function AirfareIndex() {
 
             <div className="hourly-stat">
 
-              <span>
-                LAST 24 HOURS
-              </span>
+              <div className="hourly-stat-header">
+
+                <span>
+                  LAST 24 HOURS
+                </span>
+
+
+                <span className="hourly-period-icon">
+                  24H
+                </span>
+
+              </div>
 
 
               <strong
@@ -897,7 +1230,7 @@ function AirfareIndex() {
           <div className="hourly-footer">
 
 
-            <div>
+            <div className="hourly-footer-item">
 
               <span>
                 LAST UPDATED
@@ -905,44 +1238,29 @@ function AirfareIndex() {
 
 
               <strong>
-
-                {lastUpdated
-
-                  ? new Date(
-                      lastUpdated
-                    ).toLocaleString(
-                      "en-IN",
-                      {
-                        dateStyle:
-                          "medium",
-
-                        timeStyle:
-                          "short",
-                      }
-                    )
-
-                  : "--"}
-
+                {formatDateTime(
+                  lastUpdated
+                )}
               </strong>
 
             </div>
 
 
-            <div>
+            <div className="hourly-footer-item">
 
               <span>
-                CURRENT INDEX
+                SNAPSHOTS
               </span>
 
 
               <strong>
-                {currentIndex.toFixed(2)}
+                {snapshotCount}
               </strong>
 
             </div>
 
 
-            <div>
+            <div className="hourly-footer-item">
 
               <span>
                 UPDATE FREQUENCY
@@ -971,10 +1289,9 @@ function AirfareIndex() {
 
               {snapshotCount > 0
 
-                ? `${snapshotCount} timestamped
-                   replay snapshots available.`
+                ? `${snapshotCount} timestamped replay snapshots available for high-frequency analysis.`
 
-                : "Waiting for hourly replay snapshots."}
+                : "Waiting for the first hourly replay snapshot."}
 
             </span>
 
@@ -985,10 +1302,213 @@ function AirfareIndex() {
 
 
         {/* ====================================================
-            HISTORICAL TREND
+            HOURLY GRAPH
         ==================================================== */}
 
         <section className="index-panel">
+
+
+          <div className="panel-header">
+
+            <div>
+
+              <span>
+                HIGH-FREQUENCY SERIES
+              </span>
+
+
+              <h2>
+                Hourly Airfare Index Movement
+              </h2>
+
+            </div>
+
+
+            <div className="observation-pill">
+
+              {snapshotCount}
+
+              {" snapshots"}
+
+            </div>
+
+          </div>
+
+
+          {hasHourlyHistory ? (
+
+            <div className="index-chart">
+
+              <ResponsiveContainer
+                width="100%"
+                height={360}
+              >
+
+                <LineChart
+                  data={hourlyHistory}
+                  margin={{
+                    top: 15,
+                    right: 20,
+                    left: 0,
+                    bottom: 15,
+                  }}
+                >
+
+                  <CartesianGrid
+                    stroke="rgba(148,163,184,0.08)"
+                    strokeDasharray="3 3"
+                    vertical={false}
+                  />
+
+
+                  <XAxis
+                    dataKey="chartTime"
+                    tick={{
+                      fill: "#7188a4",
+                      fontSize: 9,
+                    }}
+                    axisLine={{
+                      stroke:
+                        "rgba(148,163,184,0.10)",
+                    }}
+                    tickLine={false}
+                  />
+
+
+                  <YAxis
+                    domain={[
+                      "auto",
+                      "auto",
+                    ]}
+                    tick={{
+                      fill: "#7188a4",
+                      fontSize: 9,
+                    }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+
+
+                  <ReferenceLine
+                    y={100}
+                    stroke="rgba(34,211,238,0.22)"
+                    strokeDasharray="5 5"
+                  />
+
+
+                  <Tooltip
+                    contentStyle={{
+                      background:
+                        "#0d1b2a",
+
+                      border:
+                        "1px solid rgba(148,163,184,0.14)",
+
+                      borderRadius:
+                        "10px",
+
+                      color:
+                        "#f8fafc",
+
+                      boxShadow:
+                        "0 12px 30px rgba(0,0,0,0.25)",
+                    }}
+
+
+                    labelStyle={{
+                      color:
+                        "#67e8f9",
+
+                      fontSize:
+                        "9px",
+
+                      fontWeight:
+                        800,
+                    }}
+
+
+                    itemStyle={{
+                      color:
+                        "#dbeafe",
+
+                      fontSize:
+                        "9px",
+                    }}
+
+
+                    formatter={(value) => [
+                      Number(value).toFixed(2),
+                      "Airfare Index",
+                    ]}
+
+                  />
+
+
+                  <Line
+                    type="monotone"
+                    dataKey="chartIndex"
+                    name="Airfare Index"
+                    stroke="#3b82f6"
+                    strokeWidth={3}
+                    dot={{
+                      r: 3,
+                      fill: "#3b82f6",
+                      stroke: "#07111f",
+                      strokeWidth: 2,
+                    }}
+                    activeDot={{
+                      r: 7,
+                      fill: "#22d3ee",
+                      stroke: "#ffffff",
+                      strokeWidth: 2,
+                    }}
+                  />
+
+                </LineChart>
+
+              </ResponsiveContainer>
+
+            </div>
+
+          ) : (
+
+            <div className="empty-index">
+
+              <div className="empty-icon">
+                ⏱
+              </div>
+
+
+              <h3>
+                Hourly series is being built
+              </h3>
+
+
+              <p>
+                The dashboard does not create artificial
+                hourly values. New values appear when
+                timestamped replay snapshots are available.
+              </p>
+
+
+              <div className="hourly-empty-badge">
+                UPDATE FREQUENCY: EVERY 1 HOUR
+              </div>
+
+            </div>
+
+          )}
+
+        </section>
+
+
+
+        {/* ====================================================
+            MONTHLY TREND
+        ==================================================== */}
+
+        <section className="index-panel">
+
 
           <div className="panel-header">
 
@@ -1000,7 +1520,7 @@ function AirfareIndex() {
 
 
               <h2>
-                Airfare Index Trend
+                Monthly Airfare Index Trend
               </h2>
 
             </div>
@@ -1029,20 +1549,31 @@ function AirfareIndex() {
                 <LineChart
                   data={history}
                   margin={{
-                    top: 10,
+                    top: 15,
                     right: 20,
                     left: 0,
-                    bottom: 10,
+                    bottom: 15,
                   }}
                 >
 
                   <CartesianGrid
+                    stroke="rgba(148,163,184,0.08)"
                     strokeDasharray="3 3"
+                    vertical={false}
                   />
 
 
                   <XAxis
                     dataKey="period"
+                    tick={{
+                      fill: "#7188a4",
+                      fontSize: 9,
+                    }}
+                    axisLine={{
+                      stroke:
+                        "rgba(148,163,184,0.10)",
+                    }}
+                    tickLine={false}
                   />
 
 
@@ -1051,22 +1582,75 @@ function AirfareIndex() {
                       "auto",
                       "auto",
                     ]}
+                    tick={{
+                      fill: "#7188a4",
+                      fontSize: 9,
+                    }}
+                    axisLine={false}
+                    tickLine={false}
                   />
 
 
-                  <Tooltip />
+                  <ReferenceLine
+                    y={100}
+                    stroke="rgba(34,211,238,0.22)"
+                    strokeDasharray="5 5"
+                  />
+
+
+                  <Tooltip
+                    contentStyle={{
+                      background:
+                        "#0d1b2a",
+
+                      border:
+                        "1px solid rgba(148,163,184,0.14)",
+
+                      borderRadius:
+                        "10px",
+
+                      color:
+                        "#f8fafc",
+                    }}
+
+                    labelStyle={{
+                      color:
+                        "#67e8f9",
+
+                      fontSize:
+                        "9px",
+
+                      fontWeight:
+                        800,
+                    }}
+
+                    formatter={(value) =>
+                      [
+                        Number(value).toFixed(2),
+                        "Airfare Index",
+                      ]
+                    }
+
+                  />
 
 
                   <Line
                     type="monotone"
                     dataKey="index"
-                    stroke="#14213d"
+                    name="Airfare Index"
+                    stroke="#3b82f6"
                     strokeWidth={3}
                     dot={{
                       r: 4,
+                      fill: "#3b82f6",
+                      stroke: "#07111f",
+                      strokeWidth: 2,
                     }}
                     activeDot={{
                       r: 7,
+                      fill: "#22d3ee",
+                      stroke: "#ffffff",
+                      strokeWidth: 2,
                     }}
                   />
 
@@ -1110,6 +1694,7 @@ function AirfareIndex() {
 
         <section className="index-panel">
 
+
           <div className="panel-header">
 
             <div>
@@ -1125,6 +1710,11 @@ function AirfareIndex() {
 
             </div>
 
+
+            <div className="observation-pill">
+              {routes.length} routes
+            </div>
+
           </div>
 
 
@@ -1138,8 +1728,9 @@ function AirfareIndex() {
 
 
               <p>
-                Route-level index data will appear
-                when valid fare observations exist.
+                Route-level index information will
+                appear when valid fare observations
+                are available.
               </p>
 
             </div>
@@ -1169,13 +1760,9 @@ function AirfareIndex() {
 
 
                         <h3>
-
                           {route.origin}
-
                           {" → "}
-
                           {route.destination}
-
                         </h3>
 
                       </div>
@@ -1196,11 +1783,9 @@ function AirfareIndex() {
 
 
                       <strong>
-
                         {Number(
                           route.index || 100
                         ).toFixed(2)}
-
                       </strong>
 
                     </div>
@@ -1267,7 +1852,7 @@ function AirfareIndex() {
 
 
         {/* ====================================================
-            CPI AUGMENTATION EXPLANATION
+            CPI AUGMENTATION
         ==================================================== */}
 
         <section className="cpi-panel">
@@ -1285,12 +1870,11 @@ function AirfareIndex() {
 
 
             <p>
-
-              AIRWISE provides an airfare price
-              signal that can be analysed alongside
-              official CPI data to study transport
-              price pressure.
-
+              AIRWISE creates a dedicated airfare
+              price signal that can be studied alongside
+              official CPI data. The high-frequency layer
+              is intended for analytical comparison and
+              research, not as a replacement for official CPI.
             </p>
 
           </div>
@@ -1312,7 +1896,7 @@ function AirfareIndex() {
 
 
               <small>
-                Airfare Price Index
+                Current Airfare Index
               </small>
 
             </div>
@@ -1350,20 +1934,17 @@ function AirfareIndex() {
             <div className="cpi-output">
 
               <span>
-                ANALYTICAL OUTPUT
+                RESEARCH OUTPUT
               </span>
 
 
               <strong>
-                Airfare Price Signal
+                High-Frequency Airfare Signal
               </strong>
 
 
               <small>
-
-                Potential high-frequency input
-                for CPI augmentation analysis
-
+                Potential input for CPI augmentation analysis
               </small>
 
             </div>
@@ -1373,9 +1954,10 @@ function AirfareIndex() {
 
           <div className="cpi-disclaimer">
 
-            DEMO / REPLAY MODE — this AIRWISE index is
-            an analytical prototype and is not an
-            official Government of India CPI value.
+            AIRWISE PROTOTYPE — The displayed index is
+            calculated from AIRWISE airfare and replay
+            observations. It is not an official Government
+            of India CPI value.
 
           </div>
 
@@ -1389,6 +1971,7 @@ function AirfareIndex() {
 
         <section className="method-panel">
 
+
           <div className="panel-header">
 
             <div>
@@ -1399,7 +1982,7 @@ function AirfareIndex() {
 
 
               <h2>
-                How AIRWISE calculates the index
+                How AIRWISE calculates the signal
               </h2>
 
             </div>
@@ -1423,7 +2006,8 @@ function AirfareIndex() {
 
 
               <p>
-                Gather domestic airfare observations.
+                Gather domestic airfare observations
+                from the AIRWISE dataset.
               </p>
 
             </div>
@@ -1442,7 +2026,8 @@ function AirfareIndex() {
 
 
               <p>
-                Group comparable airfare observations.
+                Compare fares across routes, airlines
+                and available observations.
               </p>
 
             </div>
@@ -1461,7 +2046,8 @@ function AirfareIndex() {
 
 
               <p>
-                Set the base period index to 100.
+                Normalize the selected base period
+                to an index value of 100.
               </p>
 
             </div>
@@ -1480,7 +2066,7 @@ function AirfareIndex() {
 
 
               <p>
-                Track hourly and historical airfare
+                Track monthly and timestamped airfare
                 movement.
               </p>
 
@@ -1504,13 +2090,10 @@ function AirfareIndex() {
 
 
           <span>
-
-            Current index and hourly movement are
-            calculated from AIRWISE airfare data and
-            timestamped DEMO / REPLAY observations.
-            This is not an official Government of India
-            CPI publication.
-
+            The Airfare Price Index and hourly movement
+            displayed here are analytical outputs generated
+            from AIRWISE data. They are not an official
+            Government of India CPI publication.
           </span>
 
         </div>

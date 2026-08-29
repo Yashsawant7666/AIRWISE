@@ -13,30 +13,54 @@ import AnomalyChart from "../components/AnomalyChart";
 
 import "./FareDetails.css";
 
+
 const API_URL =
   import.meta.env.VITE_API_URL ||
   "https://airwise-api.onrender.com";
 
+
 function FareDetails() {
-  const { id } = useParams();
 
-  const [fare, setFare] = useState(null);
-  const [trendData, setTrendData] = useState([]);
-  const [anomalies, setAnomalies] = useState([]);
-
-  const [loading, setLoading] = useState(true);
-  const [trendLoading, setTrendLoading] = useState(false);
-  const [anomalyLoading, setAnomalyLoading] = useState(false);
-
-  const [error, setError] = useState("");
+  const { id } =
+    useParams();
 
 
-  // ============================================================
-  // LOAD DATA
-  // ============================================================
+  const [fare, setFare] =
+    useState(null);
+
+
+  const [trendData, setTrendData] =
+    useState([]);
+
+
+  const [anomalies, setAnomalies] =
+    useState([]);
+
+
+  const [loading, setLoading] =
+    useState(true);
+
+
+  const [trendLoading, setTrendLoading] =
+    useState(false);
+
+
+  const [anomalyLoading, setAnomalyLoading] =
+    useState(false);
+
+
+  const [error, setError] =
+    useState("");
+
+
+  // ==========================================================
+  // LOAD FARE
+  // ==========================================================
 
   useEffect(() => {
+
     loadFare();
+
   }, [id]);
 
 
@@ -45,34 +69,44 @@ function FareDetails() {
     try {
 
       setLoading(true);
+
       setError("");
+
 
       const response =
         await fetch(
           `${API_URL}/fare/${id}`
         );
 
+
       const fareData =
         await response.json();
 
-      if (!response.ok) {
+
+      if (
+        !response.ok
+      ) {
 
         throw new Error(
           fareData.detail ||
-            fareData.message ||
-            "Fare not found."
+          fareData.message ||
+          "Fare not found."
         );
 
       }
 
-      setFare(fareData);
+
+      setFare(
+        fareData
+      );
 
 
-      // ========================================================
+      // ======================================================
       // TREND
-      // ========================================================
+      // ======================================================
 
       setTrendLoading(true);
+
 
       try {
 
@@ -86,23 +120,31 @@ function FareDetails() {
           );
 
 
-        if (trendResponse.ok) {
+        if (
+          trendResponse.ok
+        ) {
 
           const trendResult =
             await trendResponse.json();
 
+
           setTrendData(
-            trendResult.data || []
+            Array.isArray(
+              trendResult.data
+            )
+              ? trendResult.data
+              : []
           );
 
         }
 
-      } catch (error) {
+      } catch (trendError) {
 
         console.error(
           "Trend error:",
-          error
+          trendError
         );
+
 
         setTrendData([]);
 
@@ -113,11 +155,12 @@ function FareDetails() {
       }
 
 
-      // ========================================================
+      // ======================================================
       // ANOMALIES
-      // ========================================================
+      // ======================================================
 
       setAnomalyLoading(true);
+
 
       try {
 
@@ -127,23 +170,31 @@ function FareDetails() {
           );
 
 
-        if (anomalyResponse.ok) {
+        if (
+          anomalyResponse.ok
+        ) {
 
           const anomalyResult =
             await anomalyResponse.json();
 
+
           setAnomalies(
-            anomalyResult.data || []
+            Array.isArray(
+              anomalyResult.data
+            )
+              ? anomalyResult.data
+              : []
           );
 
         }
 
-      } catch (error) {
+      } catch (anomalyError) {
 
         console.error(
           "Anomaly error:",
-          error
+          anomalyError
         );
+
 
         setAnomalies([]);
 
@@ -153,16 +204,17 @@ function FareDetails() {
 
       }
 
-    } catch (error) {
+    } catch (loadError) {
 
       console.error(
         "Fare detail error:",
-        error
+        loadError
       );
 
+
       setError(
-        error.message ||
-          "Unable to load fare analysis."
+        loadError.message ||
+        "Unable to load fare analysis."
       );
 
     } finally {
@@ -174,26 +226,39 @@ function FareDetails() {
   };
 
 
-  const number = (value) => {
+  // ==========================================================
+  // HELPERS
+  // ==========================================================
 
-    const result =
-      Number(value);
+  const number =
+    (value) => {
 
-    return Number.isNaN(result)
-      ? 0
-      : result;
-
-  };
+      const result =
+        Number(value);
 
 
-  const money = (value) => {
+      return Number.isNaN(result)
+        ? 0
+        : result;
 
-    return `₹${number(
-      value
-    ).toLocaleString("en-IN")}`;
+    };
 
-  };
 
+  const money =
+    (value) => {
+
+      return `₹${number(
+        value
+      ).toLocaleString(
+        "en-IN"
+      )}`;
+
+    };
+
+
+  // ==========================================================
+  // SAFE FARE VALUES
+  // ==========================================================
 
   const difference =
     number(
@@ -213,40 +278,92 @@ function FareDetails() {
     );
 
 
+  const currentFare =
+    number(
+      fare?.current_fare ??
+      fare?.total_fare
+    );
+
+
+  const expectedFare =
+    number(
+      fare?.expected_fare
+    );
+
+
   const status =
     String(
       fare?.anomaly_status ||
-        "NORMAL"
+      "NORMAL"
     ).toUpperCase();
 
 
   const recommendation =
     String(
       fare?.recommendation ||
-        "MONITOR"
+      "MONITOR"
     ).toUpperCase();
 
 
-  let statusClass = "normal";
+  // ==========================================================
+  // STATUS
+  // ==========================================================
 
-  if (status === "HIGH") {
+  let statusClass =
+    "normal";
+
+
+  if (
+    status === "HIGH"
+  ) {
+
     statusClass = "high";
-  } else if (status === "MEDIUM") {
+
+  } else if (
+    status === "MEDIUM"
+  ) {
+
     statusClass = "medium";
-  } else if (status === "LOW") {
+
+  } else if (
+    status === "LOW"
+  ) {
+
     statusClass = "low";
+
   }
 
+
+  // ==========================================================
+  // RECOMMENDATION
+  // ==========================================================
 
   let recommendationClass =
     "monitor";
 
-  if (recommendation === "BOOK NOW") {
-    recommendationClass = "book";
-  } else if (recommendation === "WAIT") {
-    recommendationClass = "wait";
+
+  if (
+    recommendation ===
+    "BOOK NOW"
+  ) {
+
+    recommendationClass =
+      "book";
+
+  } else if (
+    recommendation ===
+    "WAIT"
+  ) {
+
+    recommendationClass =
+      "wait";
+
   }
 
+
+  // ==========================================================
+  // LOADING
+  // ==========================================================
 
   if (loading) {
 
@@ -254,19 +371,31 @@ function FareDetails() {
 
       <div className="fare-details-page">
 
-        <div className="details-message">
+        <main className="fare-details-container">
 
-          <div className="details-spinner"></div>
+          <div className="details-message">
 
-          <h2>
-            Loading Fare Analysis...
-          </h2>
+            <div className="details-spinner"></div>
 
-          <p>
-            AIRWISE is retrieving fare intelligence.
-          </p>
 
-        </div>
+            <span>
+              AIRWISE INTELLIGENCE
+            </span>
+
+
+            <h2>
+              Loading Fare Analysis...
+            </h2>
+
+
+            <p>
+              Retrieving fare, trend and
+              anomaly intelligence.
+            </p>
+
+          </div>
+
+        </main>
 
       </div>
 
@@ -275,30 +404,50 @@ function FareDetails() {
   }
 
 
+  // ==========================================================
+  // ERROR
+  // ==========================================================
+
   if (error) {
 
     return (
 
       <div className="fare-details-page">
 
-        <div className="details-message">
+        <main className="fare-details-container">
 
-          <h2>
-            Fare Analysis Unavailable
-          </h2>
+          <div className="details-message error">
 
-          <p>
-            {error}
-          </p>
+            <div className="details-error-icon">
+              !
+            </div>
 
-          <Link
-            to="/search"
-            className="details-button"
-          >
-            ← Back to Fare Search
-          </Link>
 
-        </div>
+            <span>
+              AIRWISE INTELLIGENCE
+            </span>
+
+
+            <h2>
+              Fare Analysis Unavailable
+            </h2>
+
+
+            <p>
+              {error}
+            </p>
+
+
+            <Link
+              to="/search"
+              className="details-button"
+            >
+              ← Back to Fare Search
+            </Link>
+
+          </div>
+
+        </main>
 
       </div>
 
@@ -308,17 +457,26 @@ function FareDetails() {
 
 
   if (!fare) {
+
     return null;
+
   }
 
+
+  // ==========================================================
+  // PAGE
+  // ==========================================================
 
   return (
 
     <div className="fare-details-page">
 
-      <main className="details-main">
+      <main className="fare-details-container">
 
-        {/* BACK */}
+
+        {/* ====================================================
+            BACK
+        ==================================================== */}
 
         <Link
           to="/search"
@@ -328,71 +486,112 @@ function FareDetails() {
         </Link>
 
 
-        {/* TITLE */}
+        {/* ====================================================
+            HEADER
+        ==================================================== */}
 
         <section className="details-title">
 
-          <span>
+          <div className="details-title-label">
             AIRWISE AI ANALYSIS
-          </span>
+          </div>
 
-          <h1>
-            Fare Intelligence Report
-          </h1>
 
-          <p>
-            Detailed analysis of the selected
-            airfare observation.
-          </p>
+          <div className="details-title-row">
+
+            <div>
+
+              <h1>
+                Fare Intelligence Report
+              </h1>
+
+
+              <p>
+                Detailed analysis of the selected
+                airfare observation.
+              </p>
+
+            </div>
+
+
+            <div
+              className={
+                `header-status ${recommendationClass}`
+              }
+            >
+
+              <span>
+                RECOMMENDED ACTION
+              </span>
+
+
+              <strong>
+                {recommendation}
+              </strong>
+
+            </div>
+
+          </div>
 
         </section>
 
 
-        {/* ROUTE */}
+        {/* ====================================================
+            ROUTE HERO
+        ==================================================== */}
 
         <section className="route-card">
 
-          <div>
 
-            <span className="field-label">
+          <div className="route-airline">
+
+            <span>
               AIRLINE
             </span>
 
-            <h2>
+
+            <strong>
               {fare.airline}
-            </h2>
+            </strong>
 
           </div>
 
 
           <div className="route-display">
 
-            <div>
+
+            <div className="route-airport">
 
               <strong>
                 {fare.origin}
               </strong>
 
               <span>
-                Origin
+                ORIGIN
               </span>
 
             </div>
 
 
-            <div className="route-line">
-              →
+            <div className="route-connection">
+
+              <div className="route-connection-line"></div>
+
+              <div className="route-plane">
+                ✈
+              </div>
+
             </div>
 
 
-            <div>
+            <div className="route-airport">
 
               <strong>
                 {fare.destination}
               </strong>
 
               <span>
-                Destination
+                DESTINATION
               </span>
 
             </div>
@@ -402,37 +601,54 @@ function FareDetails() {
         </section>
 
 
-        {/* FARE COMPARISON */}
+        {/* ====================================================
+            PRICE INTELLIGENCE
+        ==================================================== */}
 
         <section className="analysis-section">
 
+
           <div className="section-heading">
 
-            <span>
-              PRICE INTELLIGENCE
-            </span>
+            <div>
 
-            <h2>
-              Fare Comparison
-            </h2>
+              <span>
+                PRICE INTELLIGENCE
+              </span>
+
+
+              <h2>
+                Fare Comparison
+              </h2>
+
+            </div>
+
+
+            <span className="section-tag">
+              OBSERVED DATA
+            </span>
 
           </div>
 
 
           <div className="metrics-grid">
 
-            <div className="metric-card">
+
+            {/* CURRENT */}
+
+            <div className="metric-card featured">
 
               <span>
                 CURRENT FARE
               </span>
 
+
               <strong>
                 {money(
-                  fare.current_fare ??
-                    fare.total_fare
+                  currentFare
                 )}
               </strong>
+
 
               <p>
                 Observed airfare
@@ -441,17 +657,21 @@ function FareDetails() {
             </div>
 
 
+            {/* EXPECTED */}
+
             <div className="metric-card">
 
               <span>
                 EXPECTED FARE
               </span>
 
+
               <strong>
                 {money(
-                  fare.expected_fare
+                  expectedFare
                 )}
               </strong>
+
 
               <p>
                 AIRWISE expected baseline
@@ -460,11 +680,14 @@ function FareDetails() {
             </div>
 
 
+            {/* DIFFERENCE */}
+
             <div className="metric-card">
 
               <span>
                 DIFFERENCE
               </span>
+
 
               <strong
                 className={
@@ -486,6 +709,7 @@ function FareDetails() {
 
               </strong>
 
+
               <p>
                 Current minus expected
               </p>
@@ -493,11 +717,14 @@ function FareDetails() {
             </div>
 
 
+            {/* DIFFERENCE % */}
+
             <div className="metric-card">
 
               <span>
                 DIFFERENCE %
               </span>
+
 
               <strong
                 className={
@@ -518,6 +745,7 @@ function FareDetails() {
 
               </strong>
 
+
               <p>
                 Relative price difference
               </p>
@@ -529,24 +757,40 @@ function FareDetails() {
         </section>
 
 
-        {/* AI */}
+        {/* ====================================================
+            AI ANALYSIS
+        ==================================================== */}
 
         <section className="analysis-section">
 
+
           <div className="section-heading">
 
-            <span>
-              MACHINE LEARNING
-            </span>
+            <div>
 
-            <h2>
-              AI Analysis
-            </h2>
+              <span>
+                MACHINE LEARNING
+              </span>
+
+
+              <h2>
+                AI Analysis
+              </h2>
+
+            </div>
+
+
+            <span className="section-tag">
+              MODEL SIGNAL
+            </span>
 
           </div>
 
 
           <div className="analysis-grid">
+
+
+            {/* ANOMALY */}
 
             <div className="analysis-card">
 
@@ -554,9 +798,26 @@ function FareDetails() {
                 ANOMALY SCORE
               </span>
 
+
               <strong className="anomaly-score">
                 {anomalyScore.toFixed(2)}
               </strong>
+
+
+              <div className="score-meter">
+
+                <div
+                  style={{
+                    width:
+                      `${Math.min(
+                        100,
+                        anomalyScore * 10
+                      )}%`,
+                  }}
+                ></div>
+
+              </div>
+
 
               <p>
                 Measures how unusual this fare
@@ -566,11 +827,14 @@ function FareDetails() {
             </div>
 
 
+            {/* STATUS */}
+
             <div className="analysis-card">
 
               <span>
                 ANOMALY STATUS
               </span>
+
 
               <div
                 className={
@@ -580,8 +844,10 @@ function FareDetails() {
                 {status}
               </div>
 
+
               <p>
-                AIRWISE classification of the fare.
+                AIRWISE classification of the
+                selected fare observation.
               </p>
 
             </div>
@@ -591,26 +857,41 @@ function FareDetails() {
         </section>
 
 
-        {/* TREND */}
+        {/* ====================================================
+            TREND
+        ==================================================== */}
 
         <section className="trend-section">
 
+
           <div className="section-heading">
 
-            <span>
-              MARKET ANALYTICS
-            </span>
+            <div>
 
-            <h2>
-              Fare Trend
-            </h2>
+              <span>
+                MARKET ANALYTICS
+              </span>
+
+
+              <h2>
+                Fare Trend
+              </h2>
+
+            </div>
+
+
+            <span className="section-tag">
+              ROUTE HISTORY
+            </span>
 
           </div>
 
 
           <p className="trend-description">
+
             Current fares compared with AIRWISE
-            expected pricing.
+            expected pricing across the selected route.
+
           </p>
 
 
@@ -621,6 +902,7 @@ function FareDetails() {
               <div className="trend-loading">
 
                 <div className="details-spinner"></div>
+
 
                 <p>
                   Loading fare trend...
@@ -641,19 +923,32 @@ function FareDetails() {
         </section>
 
 
-        {/* ANOMALY */}
+        {/* ====================================================
+            ANOMALY DETECTION
+        ==================================================== */}
 
         <section className="anomaly-section">
 
+
           <div className="section-heading">
 
-            <span>
-              MACHINE LEARNING
-            </span>
+            <div>
 
-            <h2>
-              Anomaly Detection
-            </h2>
+              <span>
+                MACHINE LEARNING
+              </span>
+
+
+              <h2>
+                Anomaly Detection
+              </h2>
+
+            </div>
+
+
+            <span className="section-tag">
+              OUTLIER MONITOR
+            </span>
 
           </div>
 
@@ -661,7 +956,8 @@ function FareDetails() {
           <p className="anomaly-description">
 
             AIRWISE identifies fare observations
-            that differ from comparable pricing patterns.
+            that differ significantly from
+            comparable pricing patterns.
 
           </p>
 
@@ -673,6 +969,7 @@ function FareDetails() {
               <div className="trend-loading">
 
                 <div className="details-spinner"></div>
+
 
                 <p>
                   Loading anomaly analysis...
@@ -691,11 +988,22 @@ function FareDetails() {
           </div>
 
 
+          {/* DETECTED LIST */}
+
           <div className="anomaly-list">
 
-            <h3>
-              Detected Unusual Fares
-            </h3>
+            <div className="anomaly-list-heading">
+
+              <h3>
+                Detected Unusual Fares
+              </h3>
+
+
+              <span>
+                {anomalies.length} signals
+              </span>
+
+            </div>
 
 
             {anomalies.length === 0 ? (
@@ -714,13 +1022,19 @@ function FareDetails() {
                     key={item.id}
                   >
 
+
                     <div>
 
                       <strong>
+
                         {item.origin}
+
                         {" → "}
+
                         {item.destination}
+
                       </strong>
+
 
                       <span>
                         {item.airline}
@@ -734,6 +1048,7 @@ function FareDetails() {
                       <span>
                         CURRENT
                       </span>
+
 
                       <strong>
                         {money(
@@ -750,6 +1065,7 @@ function FareDetails() {
                         EXPECTED
                       </span>
 
+
                       <strong>
                         {money(
                           item.expected_fare
@@ -764,6 +1080,7 @@ function FareDetails() {
                       <span>
                         SCORE
                       </span>
+
 
                       <strong>
                         {number(
@@ -781,12 +1098,14 @@ function FareDetails() {
                           `anomaly-label ${
                             String(
                               item.anomaly_status ||
-                                "normal"
+                              "normal"
                             ).toLowerCase()
                           }`
                         }
                       >
+
                         {item.anomaly_status}
+
                       </span>
 
                     </div>
@@ -794,6 +1113,7 @@ function FareDetails() {
                   </div>
 
                 )
+
               )
 
             )}
@@ -803,19 +1123,32 @@ function FareDetails() {
         </section>
 
 
-        {/* RECOMMENDATION */}
+        {/* ====================================================
+            FINAL RECOMMENDATION
+        ==================================================== */}
 
         <section className="analysis-section">
 
+
           <div className="section-heading">
 
-            <span>
-              DECISION ENGINE
-            </span>
+            <div>
 
-            <h2>
-              AIRWISE Recommendation
-            </h2>
+              <span>
+                DECISION ENGINE
+              </span>
+
+
+              <h2>
+                AIRWISE Recommendation
+              </h2>
+
+            </div>
+
+
+            <span className="section-tag">
+              FINAL SIGNAL
+            </span>
 
           </div>
 
@@ -828,13 +1161,19 @@ function FareDetails() {
             }
           >
 
+
             <div className="recommendation-icon">
 
               {recommendation ===
-              "BOOK NOW"
+                "BOOK NOW"
+
                 ? "✓"
-                : recommendation === "WAIT"
+
+                : recommendation ===
+                  "WAIT"
+
                 ? "↓"
+
                 : "◉"}
 
             </div>
@@ -846,14 +1185,17 @@ function FareDetails() {
                 RECOMMENDED ACTION
               </span>
 
+
               <h2>
-                {fare.recommendation ||
-                  "MONITOR"}
+                {recommendation}
               </h2>
 
+
               <p>
+
                 {fare.recommendation_reason ||
                   "AIRWISE completed the fare analysis."}
+
               </p>
 
             </div>
@@ -863,13 +1205,17 @@ function FareDetails() {
         </section>
 
 
-        {/* EXPLANATION */}
+        {/* ====================================================
+            EXPLANATION
+        ==================================================== */}
 
         <section className="explanation-card">
+
 
           <span>
             DECISION EXPLANATION
           </span>
+
 
           <h2>
             Why AIRWISE made this decision
@@ -880,17 +1226,17 @@ function FareDetails() {
 
             <p>
               The current fare is below the
-              expected fare calculated by AIRWISE.
-              This indicates a potentially attractive
-              booking opportunity.
+              AIRWISE expected fare. This indicates
+              a potentially attractive booking
+              opportunity.
             </p>
 
           ) : difference > 0 ? (
 
             <p>
               The current fare is above the
-              expected fare. AIRWISE recommends
-              monitoring the price before booking.
+              AIRWISE expected fare. Monitoring the
+              price may provide a better opportunity.
             </p>
 
           ) : (
@@ -906,7 +1252,9 @@ function FareDetails() {
         </section>
 
 
-        {/* ACTIONS */}
+        {/* ====================================================
+            ACTIONS
+        ==================================================== */}
 
         <div className="details-actions">
 
@@ -927,11 +1275,26 @@ function FareDetails() {
 
         </div>
 
+
+        {/* ====================================================
+            FOOTER NOTE
+        ==================================================== */}
+
+        <div className="details-disclaimer">
+
+          AIRWISE analytical output is based on
+          available airfare observations, statistical
+          baselines and anomaly signals.
+
+        </div>
+
       </main>
 
     </div>
 
   );
+
 }
+
 
 export default FareDetails;
