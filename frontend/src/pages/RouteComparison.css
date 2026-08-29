@@ -1,0 +1,680 @@
+.comparison-page {
+  min-height: 100vh;
+  background: #f5f7fb;
+  color: #14213d;
+}
+
+
+/* ============================================================
+   NAVBAR
+============================================================ */
+
+.comparison-navbar {
+  height: 76px;
+
+  padding: 0 6%;
+
+  background: white;
+
+  border-bottom: 1px solid #e5e7eb;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+}
+
+.comparison-brand {
+  color: #14213d;
+
+  text-decoration: none;
+
+  font-size: 21px;
+
+  font-weight: 900;
+
+  letter-spacing: 1px;
+}
+
+.comparison-nav-links {
+  display: flex;
+
+  gap: 28px;
+}
+
+.comparison-nav-links a {
+  text-decoration: none;
+
+  color: #64748b;
+
+  font-size: 14px;
+
+  font-weight: 600;
+}
+
+.comparison-nav-links a:hover,
+.comparison-nav-links a.active {
+  color: #14213d;
+}
+
+
+/* ============================================================
+   MAIN
+============================================================ */
+
+.comparison-main {
+  width: 88%;
+
+  max-width: 1300px;
+
+  margin: auto;
+
+  padding: 45px 0 70px;
+}
+
+
+/* ============================================================
+   HEADER
+============================================================ */
+
+.comparison-header {
+  margin-bottom: 30px;
+}
+
+.comparison-header > span {
+  color: #64748b;
+
+  font-size: 10px;
+
+  font-weight: 900;
+
+  letter-spacing: 1.4px;
+}
+
+.comparison-header h1 {
+  margin: 8px 0;
+
+  font-size: 42px;
+}
+
+.comparison-header p {
+  margin: 0;
+
+  color: #64748b;
+
+  font-size: 16px;
+}
+
+
+/* ============================================================
+   SEARCH
+============================================================ */
+
+.comparison-search {
+  padding: 28px;
+
+  background: white;
+
+  border-radius: 15px;
+
+  display: grid;
+
+  grid-template-columns:
+    1fr
+    50px
+    1fr
+    180px;
+
+  gap: 18px;
+
+  align-items: end;
+
+  box-shadow:
+    0 5px 18px rgba(0, 0, 0, 0.05);
+
+  margin-bottom: 25px;
+}
+
+.comparison-search label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  font-size: 12px;
+
+  font-weight: 800;
+}
+
+.comparison-search input {
+  width: 100%;
+
+  height: 50px;
+
+  padding: 0 14px;
+
+  border: 1px solid #cbd5e1;
+
+  border-radius: 8px;
+
+  outline: none;
+
+  font-size: 16px;
+
+  text-transform: uppercase;
+}
+
+.comparison-search input:focus {
+  border-color: #14213d;
+}
+
+.comparison-arrow {
+  text-align: center;
+
+  padding-bottom: 10px;
+
+  font-size: 25px;
+
+  color: #64748b;
+}
+
+.comparison-search button {
+  height: 50px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  background: #14213d;
+
+  color: white;
+
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.comparison-search button:disabled {
+  opacity: 0.6;
+
+  cursor: not-allowed;
+}
+
+
+/* ============================================================
+   ERROR
+============================================================ */
+
+.comparison-error {
+  padding: 15px;
+
+  background: #fee2e2;
+
+  border-radius: 9px;
+
+  color: #991b1b;
+
+  font-weight: 600;
+
+  margin-bottom: 20px;
+}
+
+
+/* ============================================================
+   LOADING
+============================================================ */
+
+.comparison-loading {
+  padding: 60px;
+
+  text-align: center;
+}
+
+.comparison-spinner {
+  width: 40px;
+  height: 40px;
+
+  margin: 0 auto 15px;
+
+  border: 4px solid #e2e8f0;
+
+  border-top-color: #14213d;
+
+  border-radius: 50%;
+
+  animation:
+    comparisonSpin 1s linear infinite;
+}
+
+@keyframes comparisonSpin {
+
+  to {
+    transform: rotate(360deg);
+  }
+
+}
+
+
+/* ============================================================
+   BEST OPTION
+============================================================ */
+
+.best-option {
+  padding: 28px;
+
+  background: #14213d;
+
+  color: white;
+
+  border-radius: 16px;
+
+  margin-bottom: 30px;
+
+  box-shadow:
+    0 8px 25px rgba(20, 33, 61, 0.15);
+}
+
+.best-option-badge {
+  display: inline-block;
+
+  padding: 6px 10px;
+
+  background: #facc15;
+
+  color: #422006;
+
+  border-radius: 20px;
+
+  font-size: 10px;
+
+  font-weight: 900;
+}
+
+.best-option-grid {
+  display: grid;
+
+  grid-template-columns:
+    1.4fr
+    1fr
+    1fr
+    1fr;
+
+  gap: 25px;
+
+  margin-top: 23px;
+
+  align-items: center;
+}
+
+.best-option-grid span {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #94a3b8;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.8px;
+}
+
+.best-option-grid h2 {
+  margin: 0;
+
+  font-size: 26px;
+}
+
+.best-option-grid strong {
+  font-size: 20px;
+}
+
+
+/* ============================================================
+   TITLE
+============================================================ */
+
+.comparison-title {
+  margin-bottom: 18px;
+
+  font-size: 23px;
+}
+
+
+/* ============================================================
+   AIRLINE CARDS
+============================================================ */
+
+.airline-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, 1fr);
+
+  gap: 20px;
+
+  margin-bottom: 35px;
+}
+
+.airline-card {
+  position: relative;
+
+  padding: 26px;
+
+  background: white;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 14px;
+
+  box-shadow:
+    0 5px 18px rgba(0, 0, 0, 0.04);
+}
+
+.airline-card.winner {
+  border:
+    2px solid #14213d;
+}
+
+.winner-badge {
+  position: absolute;
+
+  top: 18px;
+
+  right: 18px;
+
+  padding: 5px 9px;
+
+  border-radius: 20px;
+
+  background: #dcfce7;
+
+  color: #166534;
+
+  font-size: 9px;
+
+  font-weight: 900;
+}
+
+.airline-card-header span,
+.comparison-metric span,
+.comparison-recommendation span {
+  display: block;
+
+  color: #64748b;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.8px;
+}
+
+.airline-card-header h2 {
+  margin: 7px 0 0;
+
+  font-size: 24px;
+}
+
+
+/* ============================================================
+   LOWEST FARE
+============================================================ */
+
+.comparison-metric {
+  margin-top: 22px;
+
+  padding: 18px;
+
+  background: #f8fafc;
+
+  border-radius: 9px;
+}
+
+.comparison-metric strong {
+  display: block;
+
+  margin-top: 7px;
+
+  font-size: 30px;
+}
+
+
+/* ============================================================
+   ROW
+============================================================ */
+
+.comparison-row {
+  padding: 15px 0;
+
+  display: flex;
+
+  justify-content: space-between;
+
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.comparison-row span {
+  color: #64748b;
+
+  font-size: 13px;
+}
+
+.comparison-row strong {
+  font-size: 14px;
+}
+
+
+/* ============================================================
+   RECOMMENDATION
+============================================================ */
+
+.comparison-recommendation {
+  padding-top: 18px;
+}
+
+.comparison-recommendation strong {
+  display: block;
+
+  margin-top: 7px;
+
+  font-size: 20px;
+}
+
+.book {
+  color: #15803d;
+}
+
+.monitor {
+  color: #b45309;
+}
+
+.wait {
+  color: #b91c1c;
+}
+
+.good {
+  color: #15803d;
+}
+
+.bad {
+  color: #b91c1c;
+}
+
+
+/* ============================================================
+   VIEW ANALYSIS
+============================================================ */
+
+.view-analysis {
+  display: block;
+
+  margin-top: 18px;
+
+  padding: 12px;
+
+  text-align: center;
+
+  border-radius: 8px;
+
+  background: #14213d;
+
+  color: white;
+
+  text-decoration: none;
+
+  font-size: 13px;
+
+  font-weight: 700;
+}
+
+.view-analysis:hover {
+  background: #1d3557;
+}
+
+
+/* ============================================================
+   TABLE
+============================================================ */
+
+.comparison-table-section {
+  padding: 26px;
+
+  background: white;
+
+  border-radius: 14px;
+
+  box-shadow:
+    0 5px 18px rgba(0, 0, 0, 0.04);
+}
+
+.comparison-table-section h2 {
+  margin-top: 0;
+
+  font-size: 21px;
+}
+
+.comparison-table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+.comparison-table-wrapper table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  min-width: 750px;
+}
+
+.comparison-table-wrapper th {
+  padding: 14px;
+
+  background: #f8fafc;
+
+  text-align: left;
+
+  font-size: 11px;
+
+  color: #64748b;
+
+  text-transform: uppercase;
+}
+
+.comparison-table-wrapper td {
+  padding: 15px 14px;
+
+  border-bottom: 1px solid #e5e7eb;
+
+  font-size: 13px;
+}
+
+
+/* ============================================================
+   NO RESULTS
+============================================================ */
+
+.no-results {
+  padding: 60px;
+
+  background: white;
+
+  border-radius: 14px;
+
+  text-align: center;
+}
+
+.no-results p {
+  color: #64748b;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (max-width: 900px) {
+
+  .comparison-search {
+    grid-template-columns:
+      1fr 1fr;
+  }
+
+  .comparison-arrow {
+    display: none;
+  }
+
+  .best-option-grid {
+    grid-template-columns:
+      1fr 1fr;
+  }
+
+  .airline-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+}
+
+
+@media (max-width: 600px) {
+
+  .comparison-navbar {
+    height: auto;
+
+    padding: 18px 6%;
+
+    flex-direction: column;
+
+    gap: 15px;
+  }
+
+  .comparison-nav-links {
+    gap: 15px;
+  }
+
+  .comparison-main {
+    width: 92%;
+  }
+
+  .comparison-header h1 {
+    font-size: 34px;
+  }
+
+  .comparison-search {
+    grid-template-columns:
+      1fr;
+  }
+
+  .comparison-arrow {
+    display: none;
+  }
+
+  .best-option-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+}

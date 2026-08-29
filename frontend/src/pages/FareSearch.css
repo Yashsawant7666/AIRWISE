@@ -1,0 +1,827 @@
+.fare-search-page {
+  min-height: 100vh;
+  background: #f5f7fb;
+  color: #14213d;
+}
+
+
+/* ============================================================
+   NAVBAR
+============================================================ */
+
+.search-navbar {
+  height: 76px;
+  padding: 0 6%;
+
+  background: #ffffff;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.search-brand {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  text-decoration: none;
+
+  color: #14213d;
+}
+
+.brand-box {
+  width: 42px;
+  height: 42px;
+
+  background: #14213d;
+  color: white;
+
+  border-radius: 10px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 21px;
+  font-weight: 900;
+}
+
+.search-brand strong {
+  display: block;
+
+  font-size: 19px;
+
+  letter-spacing: 1px;
+}
+
+.search-brand span {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #64748b;
+
+  font-size: 11px;
+}
+
+.search-nav-links {
+  display: flex;
+
+  gap: 30px;
+}
+
+.search-nav-links a {
+  text-decoration: none;
+
+  color: #64748b;
+
+  font-size: 14px;
+
+  font-weight: 600;
+}
+
+.search-nav-links a:hover,
+.search-nav-links a.active {
+  color: #14213d;
+}
+
+
+/* ============================================================
+   HEADER
+============================================================ */
+
+.search-header {
+  padding: 50px 6% 30px;
+}
+
+.search-header > span {
+  color: #64748b;
+
+  font-size: 11px;
+
+  font-weight: 900;
+
+  letter-spacing: 1.5px;
+}
+
+.search-header h1 {
+  margin: 8px 0;
+
+  font-size: 44px;
+}
+
+.search-header p {
+  margin: 0;
+
+  color: #64748b;
+
+  font-size: 16px;
+}
+
+
+/* ============================================================
+   SEARCH BOX
+============================================================ */
+
+.search-box {
+  margin: 0 6% 35px;
+
+  padding: 28px;
+
+  background: white;
+
+  border-radius: 16px;
+
+  display: grid;
+
+  grid-template-columns:
+    1fr
+    50px
+    1fr
+    170px;
+
+  align-items: end;
+
+  gap: 18px;
+
+  box-shadow:
+    0 5px 20px
+    rgba(0, 0, 0, 0.05);
+}
+
+.input-group label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  font-size: 12px;
+
+  font-weight: 800;
+}
+
+.input-group input {
+  width: 100%;
+
+  height: 52px;
+
+  padding: 0 14px;
+
+  border:
+    1px solid #cbd5e1;
+
+  border-radius: 8px;
+
+  outline: none;
+
+  font-size: 16px;
+
+  text-transform: uppercase;
+}
+
+.input-group input:focus {
+  border-color: #14213d;
+}
+
+.route-arrow {
+  text-align: center;
+
+  padding-bottom: 9px;
+
+  font-size: 25px;
+
+  color: #64748b;
+}
+
+.search-box button {
+  height: 52px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  background: #14213d;
+
+  color: white;
+
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.search-box button:hover {
+  opacity: 0.9;
+}
+
+.search-box button:disabled {
+  opacity: 0.6;
+
+  cursor: not-allowed;
+}
+
+
+/* ============================================================
+   ERROR
+============================================================ */
+
+.search-error {
+  margin: 0 6% 25px;
+
+  padding: 16px;
+
+  background: #fee2e2;
+
+  border: 1px solid #fecaca;
+
+  border-radius: 9px;
+
+  color: #991b1b;
+
+  font-weight: 600;
+}
+
+
+/* ============================================================
+   LOADING
+============================================================ */
+
+.search-loading {
+  padding: 60px;
+
+  text-align: center;
+}
+
+.search-spinner {
+  width: 40px;
+  height: 40px;
+
+  margin: 0 auto 15px;
+
+  border: 4px solid #e2e8f0;
+
+  border-top-color: #14213d;
+
+  border-radius: 50%;
+
+  animation:
+    searchSpin 1s linear infinite;
+}
+
+@keyframes searchSpin {
+
+  to {
+    transform: rotate(360deg);
+  }
+
+}
+
+.search-loading p {
+  color: #64748b;
+}
+
+
+/* ============================================================
+   RESULTS
+============================================================ */
+
+.results-container {
+  margin: 0 6% 60px;
+}
+
+.results-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: end;
+
+  margin-bottom: 20px;
+}
+
+.results-header > div:first-child > span {
+  color: #64748b;
+
+  font-size: 10px;
+
+  font-weight: 900;
+
+  letter-spacing: 1px;
+}
+
+.results-header h2 {
+  margin: 7px 0 0;
+
+  font-size: 30px;
+}
+
+.result-arrow {
+  margin: 0 12px;
+
+  color: #64748b;
+}
+
+.result-count {
+  background: white;
+
+  padding: 11px 16px;
+
+  border-radius: 8px;
+
+  font-weight: 800;
+}
+
+.result-count span {
+  margin-left: 5px;
+
+  color: #64748b;
+
+  font-size: 12px;
+
+  font-weight: 500;
+}
+
+
+/* ============================================================
+   BEST FARE
+============================================================ */
+
+.best-fare-card {
+  padding: 28px;
+
+  border-radius: 15px;
+
+  background: #14213d;
+
+  color: white;
+
+  box-shadow:
+    0 8px 25px
+    rgba(20, 33, 61, 0.16);
+}
+
+.best-badge {
+  display: inline-block;
+
+  padding: 6px 10px;
+
+  border-radius: 20px;
+
+  background: #facc15;
+
+  color: #422006;
+
+  font-size: 10px;
+
+  font-weight: 900;
+}
+
+.best-fare-content {
+  margin-top: 23px;
+
+  display: grid;
+
+  grid-template-columns:
+    1.4fr
+    1fr
+    1fr
+    1fr;
+
+  gap: 25px;
+
+  align-items: center;
+}
+
+.best-fare-content span {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #94a3b8;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.7px;
+}
+
+.best-fare-content h2 {
+  margin: 0;
+
+  font-size: 25px;
+}
+
+.best-fare-content strong {
+  font-size: 20px;
+}
+
+.best-fare-content .best-price {
+  font-size: 30px;
+}
+
+
+/* ============================================================
+   ALL FARES
+============================================================ */
+
+.all-fares-title {
+  margin: 32px 0 18px;
+
+  font-size: 23px;
+}
+
+.fare-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, 1fr);
+
+  gap: 20px;
+}
+
+
+/* ============================================================
+   FARE CARD
+============================================================ */
+
+.fare-card {
+  padding: 25px;
+
+  background: white;
+
+  border:
+    1px solid #e5e7eb;
+
+  border-radius: 14px;
+
+  box-shadow:
+    0 5px 18px
+    rgba(0, 0, 0, 0.04);
+}
+
+.fare-card.best-card {
+  border:
+    2px solid #14213d;
+}
+
+.fare-card-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: start;
+
+  padding-bottom: 17px;
+
+  border-bottom:
+    1px solid #e5e7eb;
+}
+
+.fare-card-header span {
+  display: block;
+
+  color: #64748b;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.7px;
+}
+
+.fare-card-header h2 {
+  margin: 6px 0 0;
+
+  font-size: 22px;
+}
+
+.mini-best {
+  padding: 5px 9px;
+
+  border-radius: 15px;
+
+  background: #dcfce7 !important;
+
+  color: #166534 !important;
+
+  font-size: 9px !important;
+}
+
+
+/* ============================================================
+   PRICE
+============================================================ */
+
+.fare-price {
+  padding: 19px 0;
+}
+
+.fare-price span {
+  display: block;
+
+  color: #64748b;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.7px;
+}
+
+.fare-price strong {
+  display: block;
+
+  margin-top: 7px;
+
+  font-size: 30px;
+}
+
+
+/* ============================================================
+   DETAILS
+============================================================ */
+
+.fare-details {
+  display: grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap: 15px;
+
+  padding: 17px 0;
+
+  border-top:
+    1px solid #e5e7eb;
+
+  border-bottom:
+    1px solid #e5e7eb;
+}
+
+.fare-details span,
+.fare-analysis span,
+.fare-recommendation > span {
+  display: block;
+
+  color: #64748b;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.6px;
+}
+
+.fare-details strong {
+  display: block;
+
+  margin-top: 6px;
+
+  font-size: 17px;
+}
+
+
+/* ============================================================
+   ANALYSIS
+============================================================ */
+
+.fare-analysis {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  padding: 17px 0;
+}
+
+.fare-analysis strong {
+  display: block;
+
+  margin-top: 6px;
+
+  font-size: 17px;
+}
+
+
+/* ============================================================
+   STATUS
+============================================================ */
+
+.status-badge {
+  display: inline-block;
+
+  margin-top: 6px;
+
+  padding: 6px 10px;
+
+  border-radius: 20px;
+
+  font-size: 10px;
+
+  font-weight: 900;
+}
+
+.status-normal {
+  background: #dcfce7;
+
+  color: #166534;
+}
+
+.status-low {
+  background: #fef3c7;
+
+  color: #92400e;
+}
+
+.status-medium {
+  background: #ffedd5;
+
+  color: #c2410c;
+}
+
+.status-high {
+  background: #fee2e2;
+
+  color: #991b1b;
+}
+
+
+/* ============================================================
+   RECOMMENDATION
+============================================================ */
+
+.fare-recommendation {
+  padding: 15px;
+
+  background: #f8fafc;
+
+  border-radius: 9px;
+}
+
+.fare-recommendation strong {
+  display: block;
+
+  margin-top: 6px;
+
+  font-size: 19px;
+}
+
+.recommend-book {
+  color: #15803d;
+}
+
+.recommend-monitor {
+  color: #b45309;
+}
+
+.recommend-wait {
+  color: #b91c1c;
+}
+
+.difference-good {
+  color: #15803d;
+}
+
+.difference-bad {
+  color: #b91c1c;
+}
+
+
+/* ============================================================
+   REASON
+============================================================ */
+
+.fare-reason p {
+  margin: 13px 0 0;
+
+  color: #64748b;
+
+  font-size: 13px;
+
+  line-height: 1.6;
+}
+
+
+/* ============================================================
+   AI ANALYSIS BUTTON
+============================================================ */
+
+.analysis-button {
+  display: block;
+
+  margin-top: 18px;
+
+  padding: 12px;
+
+  text-align: center;
+
+  border-radius: 8px;
+
+  background: #14213d;
+
+  color: white;
+
+  text-decoration: none;
+
+  font-size: 13px;
+
+  font-weight: 700;
+}
+
+.analysis-button:hover {
+  background: #1d3557;
+}
+
+
+/* ============================================================
+   EMPTY
+============================================================ */
+
+.empty-results {
+  margin: 50px 6%;
+
+  padding: 50px;
+
+  background: white;
+
+  border-radius: 15px;
+
+  text-align: center;
+}
+
+.empty-results p {
+  color: #64748b;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (max-width: 900px) {
+
+  .search-box {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .route-arrow {
+    display: none;
+  }
+
+  .best-fare-content {
+    grid-template-columns:
+      1fr 1fr;
+  }
+
+  .fare-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+
+@media (max-width: 600px) {
+
+  .search-navbar {
+    height: auto;
+
+    padding: 18px 6%;
+
+    flex-direction: column;
+
+    gap: 15px;
+  }
+
+  .search-nav-links {
+    gap: 15px;
+  }
+
+  .search-header h1 {
+    font-size: 35px;
+  }
+
+  .search-box {
+    grid-template-columns: 1fr;
+  }
+
+  .route-arrow {
+    display: none;
+  }
+
+  .best-fare-content {
+    grid-template-columns: 1fr;
+  }
+
+  .results-header {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 15px;
+  }
+
+}

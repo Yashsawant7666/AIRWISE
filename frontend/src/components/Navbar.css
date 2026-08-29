@@ -1,0 +1,151 @@
+.airwise-navbar {
+  height: 72px;
+
+  padding: 0 6%;
+
+  background: #ffffff;
+
+  border-bottom: 1px solid #e5e7eb;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  position: sticky;
+
+  top: 0;
+
+  z-index: 1000;
+}
+
+
+/* ============================================================
+   LOGO
+============================================================ */
+
+.airwise-logo {
+  display: flex;
+
+  align-items: center;
+
+  gap: 11px;
+
+  text-decoration: none;
+
+  color: #14213d;
+}
+
+.logo-icon {
+  width: 40px;
+  height: 40px;
+
+  border-radius: 9px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  background: #14213d;
+
+  color: white;
+
+  font-size: 20px;
+
+  font-weight: 900;
+}
+
+.logo-text strong {
+  display: block;
+
+  font-size: 18px;
+
+  letter-spacing: 1px;
+}
+
+.logo-text span {
+  display: block;
+
+  margin-top: 2px;
+
+  color: #64748b;
+
+  font-size: 10px;
+}
+
+
+/* ============================================================
+   NAV LINKS
+============================================================ */
+
+.airwise-nav-links {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+}
+
+.nav-link {
+  padding: 9px 13px;
+
+  border-radius: 7px;
+
+  color: #64748b;
+
+  text-decoration: none;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  transition: 0.2s;
+}
+
+.nav-link:hover {
+  background: #f1f5f9;
+
+  color: #14213d;
+}
+
+.nav-link.active {
+  background: #14213d;
+
+  color: white;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (max-width: 700px) {
+
+  .airwise-navbar {
+    height: auto;
+
+    padding: 15px 5%;
+
+    flex-direction: column;
+
+    gap: 13px;
+  }
+
+  .airwise-nav-links {
+    width: 100%;
+
+    justify-content: center;
+
+    flex-wrap: wrap;
+  }
+
+  .nav-link {
+    font-size: 12px;
+
+    padding: 8px 10px;
+  }
+
+}
