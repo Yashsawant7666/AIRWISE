@@ -12,18 +12,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # ============================================================
-# LOAD .ENV
+# LOAD LOCAL .ENV
 # ============================================================
 
-ENV_FILE = BASE_DIR / ".env"
-
 load_dotenv(
-    dotenv_path=ENV_FILE
+    BASE_DIR / ".env"
 )
 
 
 # ============================================================
-# DATABASE URL
+# DATABASE
 # ============================================================
 
 DATABASE_URL = os.getenv(
@@ -31,8 +29,12 @@ DATABASE_URL = os.getenv(
 )
 
 
+# ============================================================
+# VALIDATION
+# ============================================================
+
 if not DATABASE_URL:
+
     raise RuntimeError(
-        f"DATABASE_URL is not set.\n"
-        f"Expected .env file at:\n{ENV_FILE}"
+        "DATABASE_URL environment variable is not configured."
     )
