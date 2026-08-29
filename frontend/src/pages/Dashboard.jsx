@@ -4,165 +4,416 @@ import { Link } from "react-router-dom";
 import "./Dashboard.css";
 
 
-const API_URL = "https://airwise-api.onrender.com";
+/*
+  LOCAL TESTING
+
+  Replay data is currently stored in your local PostgreSQL.
+  Therefore React must call your local FastAPI server.
+
+  Later, when the replay data is moved to Supabase/Render,
+  change this to:
+
+  const API_URL = "https://airwise-api.onrender.com";
+*/
+const API_URL =
+  "https://airwise-api.onrender.com";
 
 function Dashboard() {
-  const [summary, setSummary] = useState(null);
-  const [fares, setFares] = useState([]);
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [summary, setSummary] =
+    useState(null);
 
-  const [origin, setOrigin] = useState("DEL");
-  const [destination, setDestination] = useState("BOM");
+  const [fares, setFares] =
+    useState([]);
+
+  const [indexData, setIndexData] =
+    useState(null);
+
+  const [hourlyData, setHourlyData] =
+    useState(null);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState("");
+
+  const [origin, setOrigin] =
+    useState("DEL");
+
+  const [destination, setDestination] =
+    useState("BOM");
+
 
   // ==========================================================
-  // LOAD DATA
+  // LOAD EVERYTHING
   // ==========================================================
 
   useEffect(() => {
+
     loadDashboard();
+    loadHourlyIndex();
+
+
+    /*
+      Refresh frontend every 60 seconds.
+
+      Backend creates hourly snapshots.
+      Frontend checks for new values every minute.
+    */
+
+    const interval =
+      setInterval(() => {
+
+        loadDashboard();
+        loadHourlyIndex();
+
+      }, 60000);
+
+
+    return () => {
+
+      clearInterval(interval);
+
+    };
+
   }, []);
 
+
+  // ==========================================================
+  // LOAD DASHBOARD
+  // ==========================================================
+
   const loadDashboard = async () => {
+
     try {
+
       setLoading(true);
       setError("");
 
-      const [summaryResponse, faresResponse] =
-        await Promise.all([
-          fetch(`${API_URL}/summary`),
-          fetch(`${API_URL}/fares`),
-        ]);
+
+      // ------------------------------------------------------
+      // SUMMARY
+      // ------------------------------------------------------
+
+      const summaryResponse =
+        await fetch(
+          `${API_URL}/summary`
+        );
+
 
       if (!summaryResponse.ok) {
-        throw new Error("Failed to load summary.");
+
+        throw new Error(
+          `Summary API returned ${summaryResponse.status}`
+        );
+
       }
 
+
+      // ------------------------------------------------------
+      // FARES
+      // ------------------------------------------------------
+
+      const faresResponse =
+        await fetch(
+          `${API_URL}/fares`
+        );
+
+
       if (!faresResponse.ok) {
-        throw new Error("Failed to load fares.");
+
+        throw new Error(
+          `Fares API returned ${faresResponse.status}`
+        );
+
       }
+
 
       const summaryData =
         await summaryResponse.json();
 
+
       const faresData =
         await faresResponse.json();
 
-      if (summaryData.status !== "success") {
+
+      if (
+        summaryData.status !==
+        "success"
+      ) {
+
         throw new Error(
           summaryData.message ||
-            "Summary API error."
+          "Summary API error."
         );
+
       }
 
-      setSummary(summaryData);
-      setFares(faresData.fares || []);
+
+      setSummary(
+        summaryData
+      );
+
+
+      setFares(
+        faresData.fares || []
+      );
+
+
+      // ------------------------------------------------------
+      // CURRENT AIRFARE INDEX
+      // ------------------------------------------------------
+
+      try {
+
+        const indexResponse =
+          await fetch(
+            `${API_URL}/index`
+          );
+
+
+        if (
+          indexResponse.ok
+        ) {
+
+          const indexResult =
+            await indexResponse.json();
+
+
+          if (
+            indexResult.status ===
+            "success"
+          ) {
+
+            setIndexData(
+              indexResult
+            );
+
+          }
+
+        }
+
+      } catch (indexError) {
+
+        console.warn(
+          "AIRWISE INDEX ERROR:",
+          indexError
+        );
+
+      }
 
     } catch (err) {
-      console.error(err);
+
+      console.error(
+        "DASHBOARD ERROR:",
+        err
+      );
+
 
       setError(
         err.message ||
-          "Unable to connect to AIRWISE API."
+        "Unable to connect to AIRWISE API."
       );
+
     } finally {
+
       setLoading(false);
+
     }
+
   };
+
+
+  // ==========================================================
+  // LOAD HOURLY INDEX
+  // ==========================================================
+
+  const loadHourlyIndex =
+    async () => {
+
+      try {
+
+        const response =
+          await fetch(
+            `${API_URL}/index/hourly`
+          );
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            `Hourly API returned ${response.status}`
+          );
+
+        }
+
+
+        const data =
+          await response.json();
+
+
+        console.log(
+          "AIRWISE HOURLY INDEX:",
+          data
+        );
+
+
+        if (
+          data.status ===
+          "success"
+        ) {
+
+          setHourlyData(
+            data
+          );
+
+        }
+
+      } catch (err) {
+
+        console.warn(
+          "HOURLY INDEX ERROR:",
+          err
+        );
+
+      }
+
+    };
 
 
   // ==========================================================
   // ROUTE INTELLIGENCE
   // ==========================================================
 
-  const routeData = useMemo(() => {
-    const routeMap = {};
+  const routeData =
+    useMemo(() => {
 
-    fares.forEach((fare) => {
-      const key =
-        `${fare.origin}-${fare.destination}`;
+      const routeMap = {};
 
-      if (!routeMap[key]) {
-        routeMap[key] = {
-          origin: fare.origin,
-          destination: fare.destination,
-          fares: [],
-        };
-      }
 
-      routeMap[key].fares.push(fare);
-    });
+      fares.forEach((fare) => {
 
-    return Object.values(routeMap)
-      .map((route) => {
+        const key =
+          `${fare.origin}-${fare.destination}`;
 
-        const sorted = [
-          ...route.fares,
-        ].sort(
+
+        if (!routeMap[key]) {
+
+          routeMap[key] = {
+
+            origin:
+              fare.origin,
+
+            destination:
+              fare.destination,
+
+            fares: [],
+
+          };
+
+        }
+
+
+        routeMap[key].fares.push(
+          fare
+        );
+
+      });
+
+
+      return Object.values(
+        routeMap
+      )
+
+        .map((route) => {
+
+          const sorted =
+            [...route.fares].sort(
+              (a, b) =>
+                Number(
+                  a.current_fare ||
+                  a.total_fare ||
+                  0
+                )
+                -
+                Number(
+                  b.current_fare ||
+                  b.total_fare ||
+                  0
+                )
+            );
+
+
+          return {
+
+            ...route,
+
+            cheapest:
+              sorted[0],
+
+          };
+
+        })
+
+        .filter(
+          (route) =>
+            route.cheapest
+        )
+
+        .sort(
           (a, b) =>
             Number(
-              a.current_fare ||
-                a.total_fare ||
-                0
-            ) -
+              a.cheapest.current_fare ||
+              a.cheapest.total_fare ||
+              0
+            )
+            -
             Number(
-              b.current_fare ||
-                b.total_fare ||
-                0
+              b.cheapest.current_fare ||
+              b.cheapest.total_fare ||
+              0
             )
         );
 
-        const cheapest = sorted[0];
-
-        return {
-          ...route,
-          cheapest,
-        };
-      })
-      .sort(
-        (a, b) =>
-          Number(
-            a.cheapest.current_fare ||
-              a.cheapest.total_fare ||
-              0
-          ) -
-          Number(
-            b.cheapest.current_fare ||
-              b.cheapest.total_fare ||
-              0
-          )
-      );
-  }, [fares]);
+    }, [fares]);
 
 
   // ==========================================================
   // BOOKING OPPORTUNITIES
   // ==========================================================
 
-  const opportunities = useMemo(() => {
+  const opportunities =
+    useMemo(() => {
 
-    return fares
-      .filter(
-        (fare) =>
-          fare.recommendation === "BOOK NOW"
-      )
-      .sort(
-        (a, b) =>
-          Number(
-            a.fare_difference_percent || 0
-          ) -
-          Number(
-            b.fare_difference_percent || 0
-          )
-      )
-      .slice(0, 5);
+      return fares
 
-  }, [fares]);
+        .filter(
+          (fare) =>
+            fare.recommendation ===
+            "BOOK NOW"
+        )
+
+        .sort(
+          (a, b) =>
+            Number(
+              a.fare_difference_percent ||
+              0
+            )
+            -
+            Number(
+              b.fare_difference_percent ||
+              0
+            )
+        )
+
+        .slice(0, 5);
+
+    }, [fares]);
 
 
   // ==========================================================
-  // BEST SIGNAL
+  // BEST OPPORTUNITY
   // ==========================================================
 
   const bestOpportunity =
@@ -172,14 +423,122 @@ function Dashboard() {
 
 
   // ==========================================================
-  // FORMAT MONEY
+  // MONEY
   // ==========================================================
 
-  const money = (value) => {
-    return `₹${Number(
-      value || 0
-    ).toLocaleString("en-IN")}`;
-  };
+  const money =
+    (value) => {
+
+      const number =
+        Number(value || 0);
+
+
+      return `₹${number.toLocaleString(
+        "en-IN"
+      )}`;
+
+    };
+
+
+  // ==========================================================
+  // INDEX VALUES
+  // ==========================================================
+
+  const currentIndex =
+    Number(
+      hourlyData?.current_index ??
+      indexData?.current_index ??
+      100
+    );
+
+
+  const indexPressure =
+    hourlyData?.price_pressure ||
+    indexData?.price_pressure ||
+    "STABLE";
+
+
+  const last1Hour =
+    hourlyData?.changes?.last_1_hour;
+
+
+  const last2Hours =
+    hourlyData?.changes?.last_2_hours;
+
+
+  const last6Hours =
+    hourlyData?.changes?.last_6_hours;
+
+
+  const last24Hours =
+    hourlyData?.changes?.last_24_hours;
+
+
+  const lastUpdated =
+    hourlyData?.last_updated;
+
+
+  // ==========================================================
+  // FORMAT HOURLY CHANGE
+  // ==========================================================
+
+  const formatHourlyChange =
+    (value) => {
+
+      if (
+        value === null ||
+        value === undefined
+      ) {
+
+        return "--";
+
+      }
+
+
+      const number =
+        Number(value);
+
+
+      if (
+        Number.isNaN(number)
+      ) {
+
+        return "--";
+
+      }
+
+
+      return `${
+        number >= 0
+          ? "+"
+          : ""
+      }${number.toFixed(2)}%`;
+
+    };
+
+
+  // ==========================================================
+  // HOURLY CLASS
+  // ==========================================================
+
+  const getHourlyClass =
+    (value) => {
+
+      if (
+        value === null ||
+        value === undefined
+      ) {
+
+        return "neutral";
+
+      }
+
+
+      return Number(value) >= 0
+        ? "cpi-positive"
+        : "cpi-negative";
+
+    };
 
 
   // ==========================================================
@@ -199,9 +558,11 @@ function Dashboard() {
   // ==========================================================
 
   return (
+
     <div className="dashboard-page">
 
       <main className="dashboard-main">
+
 
         {/* =====================================================
             HERO
@@ -215,16 +576,25 @@ function Dashboard() {
               AI-POWERED AIRFARE INTELLIGENCE
             </div>
 
+
             <h1>
+
               Know the price.
+
               <br />
+
               Know the right time.
+
             </h1>
 
+
             <p>
-              AIRWISE analyzes airfare patterns,
-              detects unusual prices and recommends
+
+              AIRWISE analyzes airfare
+              patterns, detects unusual
+              prices and recommends
               when to book.
+
             </p>
 
 
@@ -236,6 +606,7 @@ function Dashboard() {
               >
                 Analyze Fare →
               </Link>
+
 
               <Link
                 to="/analytics"
@@ -252,6 +623,7 @@ function Dashboard() {
           <div className="hero-route">
 
             <div className="hero-airport">
+
               <strong>
                 DEL
               </strong>
@@ -259,6 +631,7 @@ function Dashboard() {
               <span>
                 Delhi
               </span>
+
             </div>
 
 
@@ -274,6 +647,7 @@ function Dashboard() {
 
 
             <div className="hero-airport">
+
               <strong>
                 BOM
               </strong>
@@ -281,6 +655,7 @@ function Dashboard() {
               <span>
                 Mumbai
               </span>
+
             </div>
 
           </div>
@@ -293,9 +668,11 @@ function Dashboard() {
         ===================================================== */}
 
         {error && (
+
           <div className="dashboard-error">
             {error}
           </div>
+
         )}
 
 
@@ -305,6 +682,7 @@ function Dashboard() {
 
         <section className="kpi-strip">
 
+
           <div className="kpi-item">
 
             <span>
@@ -312,9 +690,11 @@ function Dashboard() {
             </span>
 
             <strong>
+
               {loading
                 ? "..."
                 : summary?.total_fares ?? 0}
+
             </strong>
 
             <small>
@@ -331,9 +711,11 @@ function Dashboard() {
             </span>
 
             <strong className="kpi-green">
+
               {loading
                 ? "..."
                 : summary?.book_now ?? 0}
+
             </strong>
 
             <small>
@@ -350,9 +732,11 @@ function Dashboard() {
             </span>
 
             <strong className="kpi-yellow">
+
               {loading
                 ? "..."
                 : summary?.monitor ?? 0}
+
             </strong>
 
             <small>
@@ -369,9 +753,11 @@ function Dashboard() {
             </span>
 
             <strong className="kpi-red">
+
               {loading
                 ? "..."
                 : summary?.unusual_fares ?? 0}
+
             </strong>
 
             <small>
@@ -384,10 +770,264 @@ function Dashboard() {
 
 
         {/* =====================================================
+            CPI AUGMENTATION
+        ===================================================== */}
+
+        <section className="cpi-dashboard-card">
+
+          <div className="cpi-card-glow"></div>
+
+
+          <div className="cpi-dashboard-content">
+
+            <div className="cpi-top-line">
+
+              <span className="cpi-dashboard-label">
+                CPI AUGMENTATION
+              </span>
+
+
+              <span className="cpi-signal-badge">
+                HIGH-FREQUENCY SIGNAL
+              </span>
+
+            </div>
+
+
+            <h2>
+              AIRWISE Airfare Price Index
+            </h2>
+
+
+            <p>
+
+              Monitor domestic airfare movement
+              as a high-frequency analytical signal
+              alongside official Consumer Price Index
+              data.
+
+            </p>
+
+
+            <div className="cpi-dashboard-stats">
+
+
+              {/* CURRENT INDEX */}
+
+              <div className="cpi-mini-card">
+
+                <span>
+                  CURRENT INDEX
+                </span>
+
+
+                <strong>
+                  {currentIndex.toFixed(2)}
+                </strong>
+
+
+                <small>
+                  Base Index = 100
+                </small>
+
+              </div>
+
+
+              {/* 1 HOUR */}
+
+              <div className="cpi-mini-card">
+
+                <span>
+                  LAST 1 HOUR
+                </span>
+
+
+                <strong
+                  className={
+                    getHourlyClass(
+                      last1Hour
+                    )
+                  }
+                >
+
+                  {formatHourlyChange(
+                    last1Hour
+                  )}
+
+                </strong>
+
+
+                <small>
+                  hourly movement
+                </small>
+
+              </div>
+
+
+              {/* 2 HOURS */}
+
+              <div className="cpi-mini-card">
+
+                <span>
+                  LAST 2 HOURS
+                </span>
+
+
+                <strong
+                  className={
+                    getHourlyClass(
+                      last2Hours
+                    )
+                  }
+                >
+
+                  {formatHourlyChange(
+                    last2Hours
+                  )}
+
+                </strong>
+
+
+                <small>
+                  short-term movement
+                </small>
+
+              </div>
+
+
+              {/* PRESSURE */}
+
+              <div className="cpi-mini-card">
+
+                <span>
+                  PRICE PRESSURE
+                </span>
+
+
+                <strong
+                  className={
+                    indexPressure === "HIGH"
+                      ? "cpi-high"
+                      : indexPressure ===
+                        "ELEVATED"
+                      ? "cpi-elevated"
+                      : indexPressure === "LOW"
+                      ? "cpi-low"
+                      : "cpi-stable"
+                  }
+                >
+
+                  {indexPressure}
+
+                </strong>
+
+
+                <small>
+                  AIRWISE signal
+                </small>
+
+              </div>
+
+            </div>
+
+
+            <Link
+              to="/airfare-index"
+              className="cpi-dashboard-button"
+            >
+
+              View CPI Analysis
+
+              <span>
+                →
+              </span>
+
+            </Link>
+
+
+            <div className="cpi-update-info">
+
+              <span>
+
+                {lastUpdated
+
+                  ? `Last updated: ${new Date(
+                      lastUpdated
+                    ).toLocaleString(
+                      "en-IN",
+                      {
+                        dateStyle:
+                          "medium",
+
+                        timeStyle:
+                          "short",
+                      }
+                    )}`
+
+                  : "No hourly snapshot yet"}
+
+              </span>
+
+
+              <span>
+                Update frequency: Every 1 hour
+              </span>
+
+            </div>
+
+          </div>
+
+
+          {/* ==================================================
+              INDEX VISUAL
+          ================================================== */}
+
+          <div className="cpi-visual">
+
+            <div className="cpi-orbit orbit-one"></div>
+
+            <div className="cpi-orbit orbit-two"></div>
+
+            <div className="cpi-orbit orbit-three"></div>
+
+
+            <div className="cpi-core">
+
+              <span>
+                AIRFARE
+              </span>
+
+
+              <strong>
+                {currentIndex.toFixed(1)}
+              </strong>
+
+
+              <small>
+                INDEX
+              </small>
+
+            </div>
+
+          </div>
+
+
+          <div className="cpi-footnote">
+
+            DEMO / REPLAY — analytical airfare
+            signal, not an official CPI publication.
+
+          </div>
+
+        </section>
+
+
+        {/* =====================================================
             QUICK SEARCH
         ===================================================== */}
 
         <section className="search-panel">
+
 
           <div className="search-panel-heading">
 
@@ -397,14 +1037,16 @@ function Dashboard() {
                 ROUTE ANALYZER
               </span>
 
+
               <h2>
                 Analyze an airfare
               </h2>
 
             </div>
 
+
             <span className="live-badge">
-              ● LIVE DATA
+              ● FARE DATA
             </span>
 
           </div>
@@ -412,11 +1054,13 @@ function Dashboard() {
 
           <div className="route-form">
 
+
             <div className="airport-input">
 
               <label>
                 FROM
               </label>
+
 
               <input
                 value={origin}
@@ -441,6 +1085,7 @@ function Dashboard() {
               <label>
                 TO
               </label>
+
 
               <input
                 value={destination}
@@ -468,7 +1113,7 @@ function Dashboard() {
 
 
         {/* =====================================================
-            MAIN INTELLIGENCE GRID
+            MAIN INTELLIGENCE
         ===================================================== */}
 
         <section className="intelligence-dashboard-grid">
@@ -478,6 +1123,7 @@ function Dashboard() {
 
           <div className="route-intelligence-panel">
 
+
             <div className="panel-heading">
 
               <div>
@@ -486,11 +1132,13 @@ function Dashboard() {
                   ROUTE INTELLIGENCE
                 </span>
 
+
                 <h2>
                   Best Available Routes
                 </h2>
 
               </div>
+
 
               <Link to="/compare">
                 Compare →
@@ -518,17 +1166,24 @@ function Dashboard() {
                           ROUTE
                         </span>
 
+
                         <h3>
+
                           {route.origin}
+
                           {" → "}
+
                           {route.destination}
+
                         </h3>
 
                       </div>
 
 
                       <div className="route-fare-count">
+
                         {route.fares.length}
+
                       </div>
 
                     </div>
@@ -540,13 +1195,16 @@ function Dashboard() {
                         LOWEST FARE
                       </span>
 
+
                       <strong>
+
                         {money(
                           route.cheapest
-                            .current_fare ||
-                            route.cheapest
-                              .total_fare
+                            ?.current_fare ||
+                          route.cheapest
+                            ?.total_fare
                         )}
+
                       </strong>
 
                     </div>
@@ -554,17 +1212,21 @@ function Dashboard() {
 
                     <div className="route-info-row">
 
+
                       <div>
 
                         <span>
                           EXPECTED
                         </span>
 
+
                         <strong>
+
                           {money(
                             route.cheapest
-                              .expected_fare
+                              ?.expected_fare
                           )}
+
                         </strong>
 
                       </div>
@@ -576,8 +1238,9 @@ function Dashboard() {
                           AIRLINE
                         </span>
 
+
                         <strong>
-                          {route.cheapest.airline}
+                          {route.cheapest?.airline}
                         </strong>
 
                       </div>
@@ -587,22 +1250,27 @@ function Dashboard() {
 
                     <div className="route-action-row">
 
+
                       <span
                         className={
                           route.cheapest
-                            .recommendation ===
+                            ?.recommendation ===
                           "BOOK NOW"
+
                             ? "decision book"
+
                             : route.cheapest
-                                .recommendation ===
+                                ?.recommendation ===
                               "WAIT"
+
                             ? "decision wait"
+
                             : "decision monitor"
                         }
                       >
 
                         {route.cheapest
-                          .recommendation ||
+                          ?.recommendation ||
                           "MONITOR"}
 
                       </span>
@@ -629,6 +1297,7 @@ function Dashboard() {
 
           <div className="ai-signal-panel">
 
+
             <div className="panel-heading">
 
               <div>
@@ -637,11 +1306,13 @@ function Dashboard() {
                   AIRWISE AI
                 </span>
 
+
                 <h2>
                   Smart Signal
                 </h2>
 
               </div>
+
 
               <div className="ai-badge">
                 AI
@@ -659,6 +1330,7 @@ function Dashboard() {
                   <div>
 
                     <strong>
+
                       {Math.max(
                         0,
                         Math.min(
@@ -668,13 +1340,15 @@ function Dashboard() {
                               Number(
                                 bestOpportunity
                                   .fare_difference_percent ||
-                                  0
+                                0
                               )
                             ) * 10
                           )
                         )
                       )}
+
                     </strong>
+
 
                     <span>
                       SIGNAL
@@ -691,14 +1365,18 @@ function Dashboard() {
                     RECOMMENDED ACTION
                   </span>
 
+
                   <h3>
                     BOOK NOW
                   </h3>
 
+
                   <p>
 
                     {bestOpportunity.origin}
+
                     {" → "}
+
                     {bestOpportunity.destination}
 
                     {" · "}
@@ -712,16 +1390,17 @@ function Dashboard() {
 
                 <div className="ai-signal-price">
 
+
                   <div>
 
                     <span>
                       CURRENT
                     </span>
 
+
                     <strong>
                       {money(
-                        bestOpportunity
-                          .current_fare
+                        bestOpportunity.current_fare
                       )}
                     </strong>
 
@@ -734,10 +1413,10 @@ function Dashboard() {
                       EXPECTED
                     </span>
 
+
                     <strong>
                       {money(
-                        bestOpportunity
-                          .expected_fare
+                        bestOpportunity.expected_fare
                       )}
                     </strong>
 
@@ -763,9 +1442,10 @@ function Dashboard() {
                   No current booking signal
                 </strong>
 
+
                 <p>
-                  AIRWISE will display the strongest
-                  booking opportunity here.
+                  AIRWISE will display the
+                  strongest booking opportunity here.
                 </p>
 
               </div>
@@ -783,6 +1463,7 @@ function Dashboard() {
 
         <section className="opportunity-panel">
 
+
           <div className="panel-heading">
 
             <div>
@@ -790,6 +1471,7 @@ function Dashboard() {
               <span>
                 AI OPPORTUNITIES
               </span>
+
 
               <h2>
                 Booking Opportunities
@@ -818,10 +1500,13 @@ function Dashboard() {
                   <div className="opportunity-route">
 
                     <strong>
+
                       {fare.origin}
                       {" → "}
                       {fare.destination}
+
                     </strong>
+
 
                     <span>
                       {fare.airline}
@@ -835,6 +1520,7 @@ function Dashboard() {
                     <span>
                       CURRENT
                     </span>
+
 
                     <strong>
                       {money(
@@ -851,6 +1537,7 @@ function Dashboard() {
                       EXPECTED
                     </span>
 
+
                     <strong>
                       {money(
                         fare.expected_fare
@@ -866,12 +1553,16 @@ function Dashboard() {
                       DIFFERENCE
                     </span>
 
+
                     <strong className="saving">
+
                       {Number(
                         fare.fare_difference_percent ||
-                          0
+                        0
                       ).toFixed(2)}
+
                       %
+
                     </strong>
 
                   </div>
@@ -899,6 +1590,7 @@ function Dashboard() {
 
         <section className="pipeline-panel">
 
+
           <div className="panel-heading">
 
             <div>
@@ -906,6 +1598,7 @@ function Dashboard() {
               <span>
                 AIRWISE ENGINE
               </span>
+
 
               <h2>
                 From Fare Data to Decision
@@ -917,6 +1610,7 @@ function Dashboard() {
 
 
           <div className="modern-pipeline">
+
 
             <div className="modern-step">
 
@@ -1001,6 +1695,10 @@ function Dashboard() {
       </main>
 
 
+      {/* =====================================================
+          FOOTER
+      ===================================================== */}
+
       <footer className="dashboard-footer">
 
         <div>
@@ -1014,7 +1712,10 @@ function Dashboard() {
       </footer>
 
     </div>
+
   );
+
 }
+
 
 export default Dashboard;

@@ -68,6 +68,7 @@
   margin-bottom: 24px;
 }
 
+
 .airwise-hero::before {
   content: "";
 
@@ -87,6 +88,7 @@
 
   border-radius: 50%;
 }
+
 
 .airwise-hero::after {
   content: "";
@@ -108,11 +110,13 @@
   border-radius: 50%;
 }
 
+
 .hero-content {
   position: relative;
 
   z-index: 2;
 }
+
 
 .hero-eyebrow {
   color: #a9bad8;
@@ -126,6 +130,7 @@
   margin-bottom: 15px;
 }
 
+
 .hero-content h1 {
   margin: 0;
 
@@ -135,6 +140,7 @@
 
   letter-spacing: -1.5px;
 }
+
 
 .hero-content p {
   max-width: 560px;
@@ -148,11 +154,13 @@
   font-size: 15px;
 }
 
+
 .hero-actions {
   display: flex;
 
   gap: 12px;
 }
+
 
 .hero-button {
   min-height: 46px;
@@ -174,11 +182,13 @@
   font-weight: 800;
 }
 
+
 .hero-button.primary {
   background: white;
 
   color: #14213d;
 }
+
 
 .hero-button.secondary {
   border:
@@ -192,7 +202,9 @@
 }
 
 
-/* HERO ROUTE */
+/* ============================================================
+   HERO ROUTE
+============================================================ */
 
 .hero-route {
   min-height: 230px;
@@ -210,11 +222,13 @@
   gap: 20px;
 }
 
+
 .hero-airport {
   width: 110px;
 
   text-align: center;
 }
+
 
 .hero-airport strong {
   display: block;
@@ -224,11 +238,13 @@
   letter-spacing: 2px;
 }
 
+
 .hero-airport span {
   color: #a9bad8;
 
   font-size: 11px;
 }
+
 
 .flight-path {
   width: 180px;
@@ -242,6 +258,7 @@
   justify-content: center;
 }
 
+
 .path-line {
   width: 100%;
 
@@ -249,6 +266,7 @@
     1px dashed
     rgba(255, 255, 255, 0.4);
 }
+
 
 .flight-icon {
   position: absolute;
@@ -308,11 +326,13 @@
   overflow: hidden;
 }
 
+
 .kpi-item {
   padding: 22px;
 
   background: white;
 }
+
 
 .kpi-item span {
   display: block;
@@ -326,6 +346,7 @@
   letter-spacing: 1px;
 }
 
+
 .kpi-item strong {
   display: block;
 
@@ -334,19 +355,23 @@
   font-size: 31px;
 }
 
+
 .kpi-item small {
   color: #94a3b8;
 
   font-size: 10px;
 }
 
+
 .kpi-green {
   color: #15803d;
 }
 
+
 .kpi-yellow {
   color: #b45309;
 }
+
 
 .kpi-red {
   color: #b91c1c;
@@ -354,7 +379,7 @@
 
 
 /* ============================================================
-   PANEL COMMON
+   GENERIC PANELS
 ============================================================ */
 
 .search-panel,
@@ -385,6 +410,7 @@
   margin-bottom: 24px;
 }
 
+
 .search-panel-heading,
 .panel-heading {
   display: flex;
@@ -398,6 +424,7 @@
   margin-bottom: 20px;
 }
 
+
 .search-panel-heading span:first-child,
 .panel-heading span {
   color: #64748b;
@@ -409,12 +436,14 @@
   letter-spacing: 1px;
 }
 
+
 .search-panel-heading h2,
 .panel-heading h2 {
   margin: 5px 0 0;
 
   font-size: 22px;
 }
+
 
 .live-badge {
   padding: 7px 10px;
@@ -430,6 +459,7 @@
   font-weight: 900;
 }
 
+
 .route-form {
   display: grid;
 
@@ -444,6 +474,7 @@
   align-items: end;
 }
 
+
 .airport-input label {
   display: block;
 
@@ -457,6 +488,7 @@
 
   letter-spacing: 1px;
 }
+
 
 .airport-input input {
   width: 100%;
@@ -483,9 +515,11 @@
   text-transform: uppercase;
 }
 
+
 .airport-input input:focus {
   border-color: #14213d;
 }
+
 
 .form-arrow {
   height: 52px;
@@ -500,6 +534,7 @@
 
   font-size: 13px;
 }
+
 
 .analyze-button {
   height: 52px;
@@ -521,6 +556,561 @@
   font-size: 13px;
 
   font-weight: 800;
+}
+
+
+/* ============================================================
+   CPI AUGMENTATION
+============================================================ */
+
+.cpi-dashboard-card {
+  position: relative;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    300px;
+
+  gap: 35px;
+
+  align-items: center;
+
+  min-height: 310px;
+
+  padding: 32px 38px 40px;
+
+  margin-bottom: 24px;
+
+  overflow: hidden;
+
+  border:
+    1px solid #d6e1ef;
+
+  border-radius: 22px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f9fbff 0%,
+      #eef4ff 55%,
+      #ffffff 100%
+    );
+
+  box-shadow:
+    0 12px 32px
+    rgba(20, 33, 61, 0.08);
+}
+
+
+/* background glow */
+
+.cpi-card-glow {
+  position: absolute;
+
+  width: 470px;
+
+  height: 470px;
+
+  right: -220px;
+
+  top: -220px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(37, 99, 235, 0.13),
+      transparent 68%
+    );
+
+  pointer-events: none;
+}
+
+
+/* ============================================================
+   CPI CONTENT
+============================================================ */
+
+.cpi-dashboard-content {
+  position: relative;
+
+  z-index: 3;
+
+  min-width: 0;
+
+  max-width: 900px;
+}
+
+
+.cpi-top-line {
+  display: flex;
+
+  align-items: center;
+
+  flex-wrap: wrap;
+
+  gap: 10px;
+
+  margin-bottom: 10px;
+}
+
+
+.cpi-dashboard-label {
+  color: #2563eb !important;
+
+  font-size: 9px !important;
+
+  font-weight: 900 !important;
+
+  letter-spacing: 1.6px !important;
+
+  white-space: nowrap;
+}
+
+
+.cpi-signal-badge {
+  display: inline-flex;
+
+  align-items: center;
+
+  padding: 5px 10px;
+
+  border-radius: 20px;
+
+  background: #eaf2ff;
+
+  border:
+    1px solid #d5e5ff;
+
+  color: #356bb8;
+
+  font-size: 8px;
+
+  font-weight: 900;
+
+  letter-spacing: 0.7px;
+
+  white-space: nowrap;
+}
+
+
+.cpi-dashboard-content h2 {
+  margin: 0;
+
+  color: #14213d;
+
+  font-size: 30px;
+
+  line-height: 1.15;
+
+  letter-spacing: -0.5px;
+}
+
+
+.cpi-dashboard-content > p {
+  max-width: 710px;
+
+  margin: 12px 0 20px;
+
+  color: #60718a;
+
+  font-size: 12px;
+
+  line-height: 1.7;
+}
+
+
+/* ============================================================
+   CPI STAT GRID
+============================================================ */
+
+.cpi-dashboard-stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(115px, 1fr));
+
+  gap: 10px;
+
+  width: 100%;
+
+  max-width: 870px;
+
+  margin-bottom: 18px;
+}
+
+
+.cpi-mini-card {
+  min-width: 0;
+
+  padding: 14px 15px;
+
+  border:
+    1px solid #dbe5f2;
+
+  border-radius: 12px;
+
+  background:
+    rgba(255, 255, 255, 0.9);
+
+  box-shadow:
+    0 5px 13px
+    rgba(20, 33, 61, 0.04);
+}
+
+
+.cpi-mini-card span {
+  display: block;
+
+  color: #7b91b0;
+
+  font-size: 8px;
+
+  font-weight: 900;
+
+  letter-spacing: 0.8px;
+
+  white-space: nowrap;
+}
+
+
+.cpi-mini-card strong {
+  display: block;
+
+  margin: 8px 0 3px;
+
+  color: #14213d;
+
+  font-size: 21px;
+
+  font-weight: 900;
+
+  line-height: 1.1;
+
+  white-space: nowrap;
+}
+
+
+.cpi-mini-card small {
+  display: block;
+
+  color: #94a7c0;
+
+  font-size: 8px;
+
+  line-height: 1.35;
+}
+
+
+/* ============================================================
+   CPI COLORS
+============================================================ */
+
+.cpi-positive {
+  color: #16a34a !important;
+}
+
+
+.cpi-negative {
+  color: #dc2626 !important;
+}
+
+
+.cpi-high {
+  color: #dc2626 !important;
+}
+
+
+.cpi-elevated {
+  color: #d97706 !important;
+}
+
+
+.cpi-low {
+  color: #2563eb !important;
+}
+
+
+.cpi-stable {
+  color: #16a34a !important;
+}
+
+
+.neutral {
+  color: #64748b !important;
+}
+
+
+/* ============================================================
+   CPI BUTTON
+============================================================ */
+
+.cpi-dashboard-button {
+  position: relative;
+
+  z-index: 3;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 10px;
+
+  min-height: 43px;
+
+  padding: 0 17px;
+
+  border-radius: 9px;
+
+  background: #14213d;
+
+  color: #ffffff;
+
+  text-decoration: none;
+
+  font-size: 11px;
+
+  font-weight: 900;
+
+  box-shadow:
+    0 7px 16px
+    rgba(20, 33, 61, 0.15);
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.cpi-dashboard-button span {
+  font-size: 15px;
+
+  line-height: 1;
+}
+
+
+.cpi-dashboard-button:hover {
+  transform: translateY(-2px);
+
+  background: #1d3158;
+
+  box-shadow:
+    0 10px 20px
+    rgba(20, 33, 61, 0.19);
+}
+
+
+/* ============================================================
+   CPI UPDATE INFO
+============================================================ */
+
+.cpi-update-info {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 6px 20px;
+
+  margin-top: 12px;
+
+  color: #7f94af;
+
+  font-size: 8px;
+
+  line-height: 1.5;
+}
+
+
+.cpi-update-info span {
+  display: inline-block;
+}
+
+
+/* ============================================================
+   CPI VISUAL
+============================================================ */
+
+.cpi-visual {
+  position: relative;
+
+  width: 260px;
+
+  height: 260px;
+
+  margin: auto;
+
+  z-index: 3;
+
+  flex-shrink: 0;
+}
+
+
+/* ============================================================
+   ORBITS
+============================================================ */
+
+.cpi-orbit {
+  position: absolute;
+
+  left: 50%;
+
+  top: 50%;
+
+  border-radius: 50%;
+
+  border:
+    1px solid
+    rgba(37, 99, 235, 0.16);
+
+  transform:
+    translate(-50%, -50%);
+}
+
+
+.orbit-one {
+  width: 250px;
+
+  height: 250px;
+
+  transform:
+    translate(-50%, -50%)
+    rotate(18deg);
+}
+
+
+.orbit-two {
+  width: 205px;
+
+  height: 205px;
+
+  transform:
+    translate(-50%, -50%)
+    rotate(-24deg);
+}
+
+
+.orbit-three {
+  width: 160px;
+
+  height: 160px;
+
+  transform:
+    translate(-50%, -50%)
+    rotate(35deg);
+}
+
+
+/* ============================================================
+   CPI CORE
+============================================================ */
+
+.cpi-core {
+  position: absolute;
+
+  left: 50%;
+
+  top: 50%;
+
+  width: 132px;
+
+  height: 132px;
+
+  transform:
+    translate(-50%, -50%);
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle at 35% 30%,
+      #3b6698 0%,
+      #23456f 55%,
+      #14213d 100%
+    );
+
+  border:
+    7px solid
+    rgba(255, 255, 255, 0.95);
+
+  box-shadow:
+    0 14px 32px
+    rgba(20, 33, 61, 0.20),
+
+    0 0 0 1px
+    rgba(37, 99, 235, 0.12);
+}
+
+
+.cpi-core span {
+  margin-bottom: 5px;
+
+  color: #b9cae0;
+
+  font-size: 7px;
+
+  font-weight: 900;
+
+  letter-spacing: 1.2px;
+}
+
+
+.cpi-core strong {
+  color: white;
+
+  font-size: 32px;
+
+  line-height: 1;
+
+  font-weight: 900;
+
+  white-space: nowrap;
+}
+
+
+.cpi-core small {
+  margin-top: 5px;
+
+  color: #b9cae0;
+
+  font-size: 7px;
+
+  font-weight: 800;
+
+  letter-spacing: 1px;
+}
+
+
+/* ============================================================
+   CPI FOOTNOTE
+============================================================ */
+
+.cpi-footnote {
+  position: absolute;
+
+  left: 38px;
+
+  bottom: 13px;
+
+  z-index: 4;
+
+  color: #8497b0;
+
+  font-size: 8px;
+
+  font-style: italic;
 }
 
 
@@ -549,6 +1139,7 @@
   padding: 25px;
 }
 
+
 .panel-heading a {
   color: #2563eb;
 
@@ -559,6 +1150,7 @@
   font-weight: 800;
 }
 
+
 .route-card-grid {
   display: grid;
 
@@ -567,6 +1159,7 @@
 
   gap: 15px;
 }
+
 
 .air-route-card {
   padding: 19px;
@@ -581,6 +1174,7 @@
     box-shadow 0.2s ease;
 }
 
+
 .air-route-card:hover {
   transform: translateY(-2px);
 
@@ -588,6 +1182,7 @@
     0 8px 20px
     rgba(15, 23, 42, 0.06);
 }
+
 
 .route-top {
   display: flex;
@@ -601,6 +1196,7 @@
   border-bottom:
     1px solid #eef2f7;
 }
+
 
 .route-top span,
 .route-main-price span,
@@ -617,6 +1213,7 @@
   letter-spacing: 0.9px;
 }
 
+
 .route-top h3 {
   margin: 6px 0 0;
 
@@ -624,6 +1221,7 @@
 
   white-space: nowrap;
 }
+
 
 .route-fare-count {
   min-width: 27px;
@@ -647,9 +1245,11 @@
   font-weight: 900;
 }
 
+
 .route-main-price {
   padding: 16px 0;
 }
+
 
 .route-main-price strong {
   display: block;
@@ -658,6 +1258,7 @@
 
   font-size: 28px;
 }
+
 
 .route-info-row {
   display: grid;
@@ -673,6 +1274,7 @@
     1px solid #eef2f7;
 }
 
+
 .route-info-row strong {
   display: block;
 
@@ -687,6 +1289,7 @@
   text-overflow: ellipsis;
 }
 
+
 .route-action-row {
   display: flex;
 
@@ -697,11 +1300,13 @@
   padding-top: 13px;
 }
 
+
 .route-action-row > span {
   font-size: 10px;
 
   font-weight: 900;
 }
+
 
 .route-action-row a {
   color: #2563eb;
@@ -713,13 +1318,16 @@
   font-weight: 800;
 }
 
+
 .decision.book {
   color: #15803d;
 }
 
+
 .decision.monitor {
   color: #b45309;
 }
+
 
 .decision.wait {
   color: #b91c1c;
@@ -735,6 +1343,7 @@
 
   overflow: hidden;
 }
+
 
 .ai-badge {
   width: 35px;
@@ -757,6 +1366,7 @@
 
   font-weight: 900;
 }
+
 
 .ai-score-ring {
   width: 145px;
@@ -782,6 +1392,7 @@
   position: relative;
 }
 
+
 .ai-score-ring::after {
   content: "";
 
@@ -796,6 +1407,7 @@
   background: white;
 }
 
+
 .ai-score-ring > div {
   position: relative;
 
@@ -804,11 +1416,13 @@
   text-align: center;
 }
 
+
 .ai-score-ring strong {
   display: block;
 
   font-size: 38px;
 }
+
 
 .ai-score-ring span {
   display: block;
@@ -824,11 +1438,13 @@
   letter-spacing: 1px;
 }
 
+
 .ai-signal-decision {
   text-align: center;
 
   margin-bottom: 18px;
 }
+
 
 .ai-signal-decision span,
 .ai-signal-price span {
@@ -841,6 +1457,7 @@
   letter-spacing: 0.8px;
 }
 
+
 .ai-signal-decision h3 {
   margin: 6px 0;
 
@@ -849,6 +1466,7 @@
   font-size: 25px;
 }
 
+
 .ai-signal-decision p {
   margin: 0;
 
@@ -856,6 +1474,7 @@
 
   font-size: 11px;
 }
+
 
 .ai-signal-price {
   display: grid;
@@ -872,6 +1491,7 @@
   background: #f8fafc;
 }
 
+
 .ai-signal-price strong {
   display: block;
 
@@ -879,6 +1499,7 @@
 
   font-size: 16px;
 }
+
 
 .ai-analysis-button {
   display: block;
@@ -902,6 +1523,7 @@
   font-weight: 800;
 }
 
+
 .no-signal {
   padding: 45px 10px;
 
@@ -910,9 +1532,11 @@
   color: #64748b;
 }
 
+
 .no-signal strong {
   color: #14213d;
 }
+
 
 .no-signal p {
   line-height: 1.6;
@@ -931,10 +1555,12 @@
   margin-bottom: 24px;
 }
 
+
 .opportunity-list {
   border-top:
     1px solid #eef2f7;
 }
+
 
 .opportunity-row {
   display: grid;
@@ -956,6 +1582,7 @@
     1px solid #eef2f7;
 }
 
+
 .opportunity-row > div > span {
   display: block;
 
@@ -968,6 +1595,7 @@
   letter-spacing: 0.7px;
 }
 
+
 .opportunity-row > div > strong {
   display: block;
 
@@ -976,15 +1604,18 @@
   font-size: 13px;
 }
 
+
 .opportunity-route strong {
   font-size: 14px !important;
 }
+
 
 .opportunity-route span {
   margin-top: 3px !important;
 
   font-size: 10px !important;
 }
+
 
 .opportunity-row > a {
   padding: 9px;
@@ -1004,6 +1635,7 @@
   font-weight: 800;
 }
 
+
 .saving {
   color: #15803d;
 }
@@ -1019,6 +1651,7 @@
   margin-bottom: 10px;
 }
 
+
 .modern-pipeline {
   display: flex;
 
@@ -1027,11 +1660,13 @@
   gap: 15px;
 }
 
+
 .modern-step {
   flex: 1;
 
   padding: 15px;
 }
+
 
 .modern-step > div {
   width: 34px;
@@ -1057,11 +1692,13 @@
   font-weight: 900;
 }
 
+
 .modern-step strong {
   display: block;
 
   font-size: 13px;
 }
+
 
 .modern-step span {
   display: block;
@@ -1072,6 +1709,7 @@
 
   font-size: 10px;
 }
+
 
 .modern-line {
   height: 1px;
@@ -1100,6 +1738,7 @@
   font-size: 11px;
 }
 
+
 .dashboard-footer div {
   color: white;
 
@@ -1112,7 +1751,7 @@
 
 
 /* ============================================================
-   RESPONSIVE
+   RESPONSIVE — 1100px
 ============================================================ */
 
 @media (max-width: 1100px) {
@@ -1123,21 +1762,62 @@
     min-height: auto;
   }
 
+
   .hero-route {
     min-height: 170px;
   }
 
+
   .intelligence-dashboard-grid {
     grid-template-columns: 1fr;
   }
+
 
   .kpi-strip {
     grid-template-columns:
       repeat(2, 1fr);
   }
 
+
+  .cpi-dashboard-card {
+    grid-template-columns: 1fr;
+  }
+
+
+  .cpi-visual {
+    display: none;
+  }
+
+
+  .cpi-dashboard-content {
+    max-width: none;
+  }
+
 }
 
+
+/* ============================================================
+   RESPONSIVE — 900px
+============================================================ */
+
+@media (max-width: 900px) {
+
+  .cpi-dashboard-stats {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+
+  .cpi-update-info {
+    gap: 6px 15px;
+  }
+
+}
+
+
+/* ============================================================
+   RESPONSIVE — 800px
+============================================================ */
 
 @media (max-width: 800px) {
 
@@ -1145,30 +1825,36 @@
     width: 92%;
   }
 
+
   .route-form {
     grid-template-columns:
       1fr 1fr;
   }
 
+
   .form-arrow {
     display: none;
   }
+
 
   .route-card-grid {
     grid-template-columns:
       1fr;
   }
 
+
   .opportunity-row {
     grid-template-columns:
       1fr 1fr;
   }
+
 
   .modern-pipeline {
     flex-direction: column;
 
     align-items: stretch;
   }
+
 
   .modern-line {
     width: 1px;
@@ -1183,6 +1869,10 @@
 }
 
 
+/* ============================================================
+   RESPONSIVE — 600px
+============================================================ */
+
 @media (max-width: 600px) {
 
   .airwise-hero {
@@ -1191,46 +1881,92 @@
     border-radius: 20px;
   }
 
+
   .hero-content h1 {
     font-size: 38px;
   }
+
 
   .hero-actions {
     flex-direction: column;
   }
 
+
   .hero-route {
     gap: 10px;
   }
+
 
   .hero-airport strong {
     font-size: 30px;
   }
 
+
   .flight-path {
     width: 100px;
   }
+
 
   .kpi-strip {
     grid-template-columns: 1fr;
   }
 
+
   .route-form {
     grid-template-columns: 1fr;
   }
+
 
   .air-route-card {
     padding: 18px;
   }
 
+
   .opportunity-row {
     grid-template-columns: 1fr;
   }
+
 
   .dashboard-footer {
     flex-direction: column;
 
     gap: 7px;
+  }
+
+
+  .cpi-dashboard-card {
+    padding:
+      24px
+      20px
+      42px;
+
+    border-radius: 18px;
+  }
+
+
+  .cpi-dashboard-content h2 {
+    font-size: 24px;
+  }
+
+
+  .cpi-dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+
+
+  .cpi-update-info {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 4px;
+  }
+
+
+  .cpi-footnote {
+    left: 20px;
+
+    bottom: 13px;
   }
 
 }

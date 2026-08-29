@@ -1,6 +1,8 @@
 import os
 import sys
-from datetime import date, datetime, time
+import asyncio
+
+from datetime import date, datetime, time, timezone
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -99,39 +101,6 @@ app.add_middleware(
 
 
 # ============================================================
-# STARTUP
-# ============================================================
-
-@app.on_event("startup")
-def startup_event():
-
-    print()
-    print("========================================")
-    print("          AIRWISE FASTAPI")
-    print("========================================")
-
-    try:
-
-        with engine.connect() as connection:
-
-            connection.execute(
-                text("SELECT 1")
-            )
-
-        print(
-            "PostgreSQL connection successful!"
-        )
-
-    except Exception as error:
-
-        print(
-            "PostgreSQL connection failed!"
-        )
-
-        print(error)
-
-
-# ============================================================
 # HELPERS
 # ============================================================
 
@@ -186,6 +155,609 @@ def serialize_time(value):
 
 
 # ============================================================
+# INDEX SNAPSHOT TABLE
+# ============================================================
+
+def ensure_index_snapshot_table():
+
+    query = text("""
+        CREATE TABLE IF NOT EXISTS airfare_index_snapshots (
+
+            id SERIAL PRIMARY KEY,
+
+            snapshot_time TIMESTAMPTZ NOT NULL,
+
+            index_value DOUBLE PRECISION NOT NULL,
+
+            average_fare DOUBLE PRECISION NOT NULL,
+
+            observation_count INTEGER NOT NULL
+
+        )
+    """)
+
+    with engine.begin() as connection:
+
+        connection.execute(query)
+
+
+# ============================================================
+# CALCULATE CURRENT AIRFARE INDEX
+# ============================================================
+
+def calculate_current_airfare_index():
+
+    query = text("""
+        SELECT
+            id,
+            origin,
+            destination,
+            airline,
+            departure_date,
+            total_fare,
+            expected_fare
+
+        FROM fare_observations
+
+        WHERE
+            departure_date IS NOT NULL
+            AND total_fare IS NOT NULL
+            AND total_fare > 0
+
+        ORDER BY
+            departure_date ASC,
+            id ASC
+    """)
+
+    with engine.connect() as connection:
+
+        rows = (
+            connection
+            .execute(query)
+            .mappings()
+            .all()
+        )
+
+
+    if not rows:
+
+        return None
+
+
+    observations = []
+
+
+    for row in rows:
+
+        fare = safe_float(
+            row["total_fare"]
+        )
+
+        departure_date = row[
+            "departure_date"
+        ]
+
+
+        if (
+            fare is None
+            or fare <= 0
+            or departure_date is None
+        ):
+
+            continue
+
+
+        observations.append({
+
+            "id":
+                safe_int(
+                    row["id"]
+                ),
+
+            "origin":
+                row["origin"],
+
+            "destination":
+                row["destination"],
+
+            "airline":
+                row["airline"],
+
+            "date":
+                departure_date,
+
+            "fare":
+                fare
+
+        })
+
+
+    if not observations:
+
+        return None
+
+
+    # ========================================================
+    # MONTHLY GROUPING
+    # ========================================================
+
+    monthly_fares = {}
+
+
+    for item in observations:
+
+        month_key = item[
+            "date"
+        ].strftime(
+            "%Y-%m"
+        )
+
+
+        monthly_fares.setdefault(
+            month_key,
+            []
+        ).append(
+            item["fare"]
+        )
+
+
+    if not monthly_fares:
+
+        return None
+
+
+    # ========================================================
+    # MONTHLY AVERAGES
+    # ========================================================
+
+    monthly_average = {}
+
+
+    for month, values in monthly_fares.items():
+
+        if values:
+
+            monthly_average[
+                month
+            ] = (
+                sum(values)
+                /
+                len(values)
+            )
+
+
+    sorted_months = sorted(
+        monthly_average.keys()
+    )
+
+
+    if not sorted_months:
+
+        return None
+
+
+    # ========================================================
+    # BASE PERIOD
+    # ========================================================
+
+    base_period = sorted_months[0]
+
+    base_average = monthly_average[
+        base_period
+    ]
+
+
+    if base_average <= 0:
+
+        return None
+
+
+    # ========================================================
+    # CURRENT PERIOD
+    # ========================================================
+
+    current_period = sorted_months[-1]
+
+    current_average = monthly_average[
+        current_period
+    ]
+
+
+    # ========================================================
+    # CURRENT INDEX
+    # ========================================================
+
+    current_index = (
+        current_average
+        /
+        base_average
+    ) * 100
+
+
+    # ========================================================
+    # PRESSURE
+    # ========================================================
+
+    change_percent = (
+        current_index - 100
+    )
+
+
+    if current_index >= 105:
+
+        pressure = "HIGH"
+
+    elif current_index >= 102:
+
+        pressure = "ELEVATED"
+
+    elif current_index >= 98:
+
+        pressure = "STABLE"
+
+    else:
+
+        pressure = "LOW"
+
+
+    # ========================================================
+    # HISTORY
+    # ========================================================
+
+    history = []
+
+
+    for month in sorted_months:
+
+        avg_fare = monthly_average[
+            month
+        ]
+
+
+        index_value = (
+            avg_fare
+            /
+            base_average
+        ) * 100
+
+
+        history.append({
+
+            "period":
+                month,
+
+            "average_fare":
+                round(
+                    avg_fare,
+                    2
+                ),
+
+            "index":
+                round(
+                    index_value,
+                    2
+                ),
+
+            "change_percent":
+                round(
+                    index_value - 100,
+                    2
+                )
+
+        })
+
+
+    # ========================================================
+    # RESULT
+    # ========================================================
+
+    return {
+
+        "base_period":
+            base_period,
+
+        "base_average_fare":
+            round(
+                base_average,
+                2
+            ),
+
+        "current_period":
+            current_period,
+
+        "current_average_fare":
+            round(
+                current_average,
+                2
+            ),
+
+        "current_index":
+            round(
+                current_index,
+                2
+            ),
+
+        "change_percent":
+            round(
+                change_percent,
+                2
+            ),
+
+        "price_pressure":
+            pressure,
+
+        "observations":
+            len(observations),
+
+        "periods":
+            len(sorted_months),
+
+        "history":
+            history
+
+    }
+
+
+# ============================================================
+# SAVE HOURLY SNAPSHOT
+# ============================================================
+
+def save_airfare_index_snapshot():
+
+    ensure_index_snapshot_table()
+
+
+    index_data = (
+        calculate_current_airfare_index()
+    )
+
+
+    if index_data is None:
+
+        print(
+            "No valid airfare data available "
+            "for hourly snapshot."
+        )
+
+        return None
+
+
+    snapshot_time = datetime.now(
+        timezone.utc
+    )
+
+
+    # ========================================================
+    # AVOID DUPLICATE SNAPSHOT
+    # ========================================================
+
+    duplicate_query = text("""
+        SELECT id
+
+        FROM airfare_index_snapshots
+
+        WHERE snapshot_time >= date_trunc(
+            'hour',
+            :snapshot_time
+        )
+
+        AND snapshot_time <
+            date_trunc(
+                'hour',
+                :snapshot_time
+            ) + INTERVAL '1 hour'
+
+        LIMIT 1
+    """)
+
+
+    insert_query = text("""
+        INSERT INTO airfare_index_snapshots (
+
+            snapshot_time,
+            index_value,
+            average_fare,
+            observation_count
+
+        )
+
+        VALUES (
+
+            :snapshot_time,
+            :index_value,
+            :average_fare,
+            :observation_count
+
+        )
+    """)
+
+
+    with engine.begin() as connection:
+
+        existing = connection.execute(
+            duplicate_query,
+            {
+                "snapshot_time":
+                    snapshot_time
+            }
+        ).first()
+
+
+        if existing:
+
+            print(
+                "Hourly AIRWISE index snapshot "
+                "already exists."
+            )
+
+            return None
+
+
+        connection.execute(
+            insert_query,
+            {
+
+                "snapshot_time":
+                    snapshot_time,
+
+                "index_value":
+                    index_data[
+                        "current_index"
+                    ],
+
+                "average_fare":
+                    index_data[
+                        "current_average_fare"
+                    ],
+
+                "observation_count":
+                    index_data[
+                        "observations"
+                    ]
+
+            }
+        )
+
+
+    print()
+    print("========================================")
+    print("AIRWISE HOURLY INDEX SNAPSHOT")
+    print("========================================")
+
+    print(
+        "Snapshot:",
+        snapshot_time.isoformat()
+    )
+
+    print(
+        "Index:",
+        index_data["current_index"]
+    )
+
+    print(
+        "Average fare:",
+        index_data[
+            "current_average_fare"
+        ]
+    )
+
+    print(
+        "Observations:",
+        index_data[
+            "observations"
+        ]
+    )
+
+    return {
+
+        "snapshot_time":
+            snapshot_time.isoformat(),
+
+        "index":
+            index_data[
+                "current_index"
+            ],
+
+        "average_fare":
+            index_data[
+                "current_average_fare"
+            ],
+
+        "observation_count":
+            index_data[
+                "observations"
+            ]
+
+    }
+
+
+# ============================================================
+# HOURLY BACKGROUND SERVICE
+# ============================================================
+
+async def hourly_index_snapshot_loop():
+
+    print()
+    print("AIRWISE HOURLY INDEX SERVICE STARTED")
+    print("Snapshots will be checked every hour.")
+
+
+    while True:
+
+        try:
+
+            save_airfare_index_snapshot()
+
+        except Exception as error:
+
+            print()
+            print(
+                "HOURLY INDEX SNAPSHOT ERROR"
+            )
+
+            print(error)
+
+
+        # ====================================================
+        # WAIT 1 HOUR
+        # ====================================================
+
+        await asyncio.sleep(
+            3600
+        )
+
+
+# ============================================================
+# STARTUP
+# ============================================================
+
+@app.on_event("startup")
+def startup_event():
+
+    print()
+    print("========================================")
+    print("          AIRWISE FASTAPI")
+    print("========================================")
+
+
+    try:
+
+        with engine.connect() as connection:
+
+            connection.execute(
+                text("SELECT 1")
+            )
+
+        print(
+            "PostgreSQL connection successful!"
+        )
+
+
+        # Make sure snapshot table exists
+        ensure_index_snapshot_table()
+
+
+        # Start hourly background task
+        asyncio.create_task(
+            hourly_index_snapshot_loop()
+        )
+
+
+        print(
+            "Hourly Airfare Index service enabled."
+        )
+
+
+    except Exception as error:
+
+        print(
+            "PostgreSQL connection failed!"
+        )
+
+        print(error)
+
+
+# ============================================================
 # ROOT
 # ============================================================
 
@@ -225,6 +797,10 @@ def root():
             "/fare-trend",
 
             "/index",
+
+            "/index/hourly",
+
+            "/index/snapshot",
 
             "/info"
 
@@ -295,13 +871,17 @@ def get_summary():
                 COUNT(*) AS total_fares,
 
                 COUNT(*) FILTER (
-                    WHERE COALESCE(anomaly_status, 'NORMAL')
-                    != 'NORMAL'
+                    WHERE COALESCE(
+                        anomaly_status,
+                        'NORMAL'
+                    ) != 'NORMAL'
                 ) AS unusual_fares,
 
                 COUNT(*) FILTER (
-                    WHERE COALESCE(anomaly_status, 'NORMAL')
-                    = 'NORMAL'
+                    WHERE COALESCE(
+                        anomaly_status,
+                        'NORMAL'
+                    ) = 'NORMAL'
                 ) AS normal_fares,
 
                 COUNT(*) FILTER (
@@ -331,6 +911,7 @@ def get_summary():
             FROM fare_observations
         """)
 
+
         with engine.connect() as connection:
 
             row = (
@@ -340,6 +921,7 @@ def get_summary():
                 .first()
             )
 
+
         return {
 
             "status":
@@ -347,50 +929,69 @@ def get_summary():
 
             "total_fares":
                 int(
-                    row["total_fares"] or 0
+                    row[
+                        "total_fares"
+                    ] or 0
                 ),
 
             "unusual_fares":
                 int(
-                    row["unusual_fares"] or 0
+                    row[
+                        "unusual_fares"
+                    ] or 0
                 ),
 
             "normal_fares":
                 int(
-                    row["normal_fares"] or 0
+                    row[
+                        "normal_fares"
+                    ] or 0
                 ),
 
             "low_anomalies":
                 int(
-                    row["low_anomalies"] or 0
+                    row[
+                        "low_anomalies"
+                    ] or 0
                 ),
 
             "medium_anomalies":
                 int(
-                    row["medium_anomalies"] or 0
+                    row[
+                        "medium_anomalies"
+                    ] or 0
                 ),
 
             "high_anomalies":
                 int(
-                    row["high_anomalies"] or 0
+                    row[
+                        "high_anomalies"
+                    ] or 0
                 ),
 
             "book_now":
                 int(
-                    row["book_now"] or 0
+                    row[
+                        "book_now"
+                    ] or 0
                 ),
 
             "monitor":
                 int(
-                    row["monitor"] or 0
+                    row[
+                        "monitor"
+                    ] or 0
                 ),
 
             "wait":
                 int(
-                    row["wait"] or 0
+                    row[
+                        "wait"
+                    ] or 0
                 )
 
         }
+
 
     except Exception as error:
 
@@ -437,6 +1038,7 @@ def get_fares():
             ORDER BY id ASC
         """)
 
+
         with engine.connect() as connection:
 
             rows = (
@@ -446,7 +1048,9 @@ def get_fares():
                 .all()
             )
 
+
         fares = []
+
 
         for row in rows:
 
@@ -483,7 +1087,9 @@ def get_fares():
 
                 "fare_difference":
                     safe_float(
-                        row["fare_difference"]
+                        row[
+                            "fare_difference"
+                        ]
                     ),
 
                 "fare_difference_percent":
@@ -526,6 +1132,7 @@ def get_fares():
 
             })
 
+
         return {
 
             "status":
@@ -538,6 +1145,7 @@ def get_fares():
                 fares
 
         }
+
 
     except Exception as error:
 
@@ -584,6 +1192,7 @@ def get_fare(fare_id: int):
             WHERE id = :fare_id
         """)
 
+
         with engine.connect() as connection:
 
             row = (
@@ -599,6 +1208,7 @@ def get_fare(fare_id: int):
                 .first()
             )
 
+
         if row is None:
 
             raise HTTPException(
@@ -607,6 +1217,7 @@ def get_fare(fare_id: int):
                     f"Fare {fare_id} not found."
                 )
             )
+
 
         return {
 
@@ -679,18 +1290,25 @@ def get_fare(fare_id: int):
                 row["recommendation"],
 
             "recommendation_reason":
-                row["recommendation_reason"]
+                row[
+                    "recommendation_reason"
+                ]
 
         }
+
 
     except HTTPException:
 
         raise
 
+
     except Exception as error:
 
         print()
-        print("FARE DETAILS ERROR")
+        print(
+            "FARE DETAILS ERROR"
+        )
+
         print(error)
 
         raise HTTPException(
@@ -722,7 +1340,12 @@ def search_fares(
 
     origin = origin.strip().upper()
 
-    destination = destination.strip().upper()
+    destination = (
+        destination
+        .strip()
+        .upper()
+    )
+
 
     print()
     print("========================================")
@@ -732,6 +1355,7 @@ def search_fares(
     print(
         f"{origin} → {destination}"
     )
+
 
     try:
 
@@ -758,10 +1382,12 @@ def search_fares(
 
                 AND
 
-                UPPER(destination) = :destination
+                UPPER(destination)
+                    = :destination
 
             ORDER BY total_fare ASC
         """)
+
 
         with engine.connect() as connection:
 
@@ -780,6 +1406,7 @@ def search_fares(
                 .mappings()
                 .all()
             )
+
 
         if not rows:
 
@@ -809,7 +1436,9 @@ def search_fares(
 
             }
 
+
         fares = []
+
 
         for index, row in enumerate(rows):
 
@@ -877,6 +1506,7 @@ def search_fares(
 
             })
 
+
         return {
 
             "status":
@@ -902,6 +1532,7 @@ def search_fares(
                 fares
 
         }
+
 
     except Exception as error:
 
@@ -959,6 +1590,7 @@ def predict_fare(data: dict):
             )
         )
 
+
         if current_fare <= 0:
 
             raise HTTPException(
@@ -968,6 +1600,7 @@ def predict_fare(data: dict):
                     "greater than 0."
                 )
             )
+
 
         if expected_fare <= 0:
 
@@ -979,23 +1612,22 @@ def predict_fare(data: dict):
                 )
             )
 
-        # ----------------------------------------------------
-        # DIFFERENCE
-        # ----------------------------------------------------
 
         difference = (
             current_fare -
             expected_fare
         )
 
+
         difference_percent = (
             difference /
             expected_fare
         ) * 100
 
-        # ----------------------------------------------------
+
+        # ====================================================
         # RECOMMENDATION
-        # ----------------------------------------------------
+        # ====================================================
 
         if difference_percent <= -5:
 
@@ -1036,13 +1668,15 @@ def predict_fare(data: dict):
                 "Waiting may provide a better price."
             )
 
-        # ----------------------------------------------------
+
+        # ====================================================
         # ANOMALY
-        # ----------------------------------------------------
+        # ====================================================
 
         absolute_difference = abs(
             difference_percent
         )
+
 
         if absolute_difference >= 10:
 
@@ -1060,10 +1694,12 @@ def predict_fare(data: dict):
 
             anomaly_status = "NORMAL"
 
+
         anomaly_score = round(
             absolute_difference * 10,
             2
         )
+
 
         return {
 
@@ -1121,9 +1757,11 @@ def predict_fare(data: dict):
 
         }
 
+
     except HTTPException:
 
         raise
+
 
     except ValueError:
 
@@ -1133,6 +1771,7 @@ def predict_fare(data: dict):
                 "Fare values must be valid numbers."
             )
         )
+
 
     except Exception as error:
 
@@ -1181,6 +1820,7 @@ def get_anomalies():
             ORDER BY anomaly_score DESC
         """)
 
+
         with engine.connect() as connection:
 
             rows = (
@@ -1190,7 +1830,9 @@ def get_anomalies():
                 .all()
             )
 
+
         anomalies = []
+
 
         for row in rows:
 
@@ -1250,6 +1892,7 @@ def get_anomalies():
 
             })
 
+
         return {
 
             "status":
@@ -1262,6 +1905,7 @@ def get_anomalies():
                 anomalies
 
         }
+
 
     except Exception as error:
 
@@ -1311,6 +1955,7 @@ def get_fare_trend(
 
                 (
                     :origin IS NULL
+
                     OR UPPER(origin)
                     = UPPER(:origin)
                 )
@@ -1319,6 +1964,7 @@ def get_fare_trend(
 
                 (
                     :destination IS NULL
+
                     OR UPPER(destination)
                     = UPPER(:destination)
                 )
@@ -1327,12 +1973,14 @@ def get_fare_trend(
 
                 (
                     :airline IS NULL
+
                     OR UPPER(airline)
                     = UPPER(:airline)
                 )
 
             ORDER BY id ASC
         """)
+
 
         with engine.connect() as connection:
 
@@ -1355,7 +2003,9 @@ def get_fare_trend(
                 .all()
             )
 
+
         data = []
+
 
         for row in rows:
 
@@ -1398,6 +2048,7 @@ def get_fare_trend(
 
             })
 
+
         return {
 
             "status":
@@ -1410,6 +2061,7 @@ def get_fare_trend(
                 data
 
         }
+
 
     except Exception as error:
 
@@ -1426,22 +2078,6 @@ def get_fare_trend(
 # ============================================================
 # AIRWISE AIRFARE PRICE INDEX
 # ============================================================
-#
-# Prototype methodology:
-#
-# 1. Read valid dated airfare observations.
-# 2. Calculate average fare for each month.
-# 3. Use the earliest available month as base period.
-# 4. Base index = 100.
-# 5. Calculate:
-#
-#       Index =
-#       (period average / base average) * 100
-#
-# This is an AIRWISE prototype index.
-# It is NOT an official government CPI value.
-#
-# ============================================================
 
 @app.get("/index")
 def get_airfare_index():
@@ -1454,154 +2090,12 @@ def get_airfare_index():
         print("========================================")
 
 
-        # ====================================================
-        # READ FARE DATA
-        # ====================================================
-
-        query = text("""
-            SELECT
-
-                id,
-                origin,
-                destination,
-                airline,
-                departure_date,
-                total_fare,
-                expected_fare
-
-            FROM fare_observations
-
-            WHERE
-
-                departure_date IS NOT NULL
-
-                AND total_fare IS NOT NULL
-
-                AND total_fare > 0
-
-            ORDER BY
-                departure_date ASC,
-                id ASC
-        """)
+        index_data = (
+            calculate_current_airfare_index()
+        )
 
 
-        with engine.connect() as connection:
-
-            rows = (
-                connection
-                .execute(query)
-                .mappings()
-                .all()
-            )
-
-
-        # ====================================================
-        # NO DATA
-        # ====================================================
-
-        if not rows:
-
-            return {
-
-                "status":
-                    "success",
-
-                "index_name":
-                    "AIRWISE Airfare Price Index",
-
-                "message":
-                    (
-                        "No dated airfare observations "
-                        "are available."
-                    ),
-
-                "base_period":
-                    None,
-
-                "base_index":
-                    100,
-
-                "current_period":
-                    None,
-
-                "current_index":
-                    100,
-
-                "change_percent":
-                    0,
-
-                "observations":
-                    0,
-
-                "history":
-                    [],
-
-                "routes":
-                    []
-
-            }
-
-
-        # ====================================================
-        # PREPARE OBSERVATIONS
-        # ====================================================
-
-        observations = []
-
-
-        for row in rows:
-
-            fare = safe_float(
-                row["total_fare"]
-            )
-
-
-            if fare is None or fare <= 0:
-
-                continue
-
-
-            departure_date = row[
-                "departure_date"
-            ]
-
-
-            if departure_date is None:
-
-                continue
-
-
-            observations.append({
-
-                "id":
-                    safe_int(
-                        row["id"]
-                    ),
-
-                "origin":
-                    row["origin"],
-
-                "destination":
-                    row["destination"],
-
-                "airline":
-                    row["airline"],
-
-                "date":
-                    departure_date,
-
-                "fare":
-                    fare,
-
-                "expected_fare":
-                    safe_float(
-                        row["expected_fare"]
-                    )
-
-            })
-
-
-        if not observations:
+        if index_data is None:
 
             return {
 
@@ -1614,7 +2108,7 @@ def get_airfare_index():
                 "message":
                     (
                         "No valid dated airfare "
-                        "observations found."
+                        "observations available."
                     ),
 
                 "base_period":
@@ -1632,7 +2126,13 @@ def get_airfare_index():
                 "change_percent":
                     0,
 
+                "price_pressure":
+                    "STABLE",
+
                 "observations":
+                    0,
+
+                "periods":
                     0,
 
                 "history":
@@ -1645,276 +2145,97 @@ def get_airfare_index():
 
 
         # ====================================================
-        # GROUP BY MONTH
-        # ====================================================
-
-        monthly_fares = {}
-
-
-        for item in observations:
-
-            current_date = item[
-                "date"
-            ]
-
-
-            if isinstance(
-                current_date,
-                datetime
-            ):
-
-                month_key = current_date.strftime(
-                    "%Y-%m"
-                )
-
-            else:
-
-                month_key = current_date.strftime(
-                    "%Y-%m"
-                )
-
-
-            if month_key not in monthly_fares:
-
-                monthly_fares[
-                    month_key
-                ] = []
-
-
-            monthly_fares[
-                month_key
-            ].append(
-                item["fare"]
-            )
-
-
-        # ====================================================
-        # MONTHLY AVERAGES
-        # ====================================================
-
-        monthly_average = {}
-
-
-        for month, fare_list in monthly_fares.items():
-
-            if not fare_list:
-
-                continue
-
-
-            monthly_average[
-                month
-            ] = sum(fare_list) / len(
-                fare_list
-            )
-
-
-        sorted_months = sorted(
-            monthly_average.keys()
-        )
-
-
-        if not sorted_months:
-
-            raise HTTPException(
-                status_code=500,
-                detail=(
-                    "Unable to calculate monthly "
-                    "fare averages."
-                )
-            )
-
-
-        # ====================================================
-        # BASE PERIOD
-        # ====================================================
-
-        base_period = sorted_months[0]
-
-
-        base_average = monthly_average[
-            base_period
-        ]
-
-
-        if base_average <= 0:
-
-            raise HTTPException(
-                status_code=500,
-                detail=(
-                    "Invalid base-period fare average."
-                )
-            )
-
-
-        # ====================================================
-        # HISTORICAL INDEX
-        # ====================================================
-
-        history = []
-
-
-        for month in sorted_months:
-
-            average_fare = monthly_average[
-                month
-            ]
-
-
-            index_value = (
-                average_fare /
-                base_average
-            ) * 100
-
-
-            change_percent = (
-                index_value - 100
-            )
-
-
-            history.append({
-
-                "period":
-                    month,
-
-                "average_fare":
-                    round(
-                        average_fare,
-                        2
-                    ),
-
-                "index":
-                    round(
-                        index_value,
-                        2
-                    ),
-
-                "change_percent":
-                    round(
-                        change_percent,
-                        2
-                    )
-
-            })
-
-
-        # ====================================================
-        # CURRENT PERIOD
-        # ====================================================
-
-        current_period = sorted_months[-1]
-
-
-        current_average = monthly_average[
-            current_period
-        ]
-
-
-        current_index = (
-            current_average /
-            base_average
-        ) * 100
-
-
-        change_percent = (
-            current_index - 100
-        )
-
-
-        # ====================================================
         # ROUTE INDEX
         # ====================================================
 
-        route_groups = {}
+        route_query = text("""
+            SELECT
+
+                origin,
+                destination,
+
+                COUNT(*) AS observations,
+
+                AVG(total_fare) AS average_fare
+
+            FROM fare_observations
+
+            WHERE
+                total_fare IS NOT NULL
+                AND total_fare > 0
+
+            GROUP BY
+                origin,
+                destination
+
+            ORDER BY
+                average_fare DESC
+        """)
 
 
-        for item in observations:
+        with engine.connect() as connection:
 
-            route_key = (
-                f"{item['origin']}"
-                f"-"
-                f"{item['destination']}"
-            )
-
-
-            if route_key not in route_groups:
-
-                route_groups[
-                    route_key
-                ] = {
-
-                    "origin":
-                        item["origin"],
-
-                    "destination":
-                        item["destination"],
-
-                    "fares":
-                        []
-
-                }
-
-
-            route_groups[
-                route_key
-            ][
-                "fares"
-            ].append(
-                item["fare"]
+            route_rows = (
+                connection
+                .execute(route_query)
+                .mappings()
+                .all()
             )
 
 
         routes = []
 
 
-        for route_key, route_data in route_groups.items():
-
-            fare_list = route_data[
-                "fares"
-            ]
+        base_average = index_data[
+            "base_average_fare"
+        ]
 
 
-            if not fare_list:
+        for row in route_rows:
+
+            average_fare = safe_float(
+                row["average_fare"]
+            )
+
+
+            if (
+                average_fare is None
+                or base_average <= 0
+            ):
 
                 continue
 
 
-            route_average = (
-                sum(fare_list) /
-                len(fare_list)
-            )
-
-
             route_index = (
-                route_average /
+                average_fare
+                /
                 base_average
             ) * 100
-
-
-            route_change = (
-                route_index - 100
-            )
 
 
             routes.append({
 
                 "route":
-                    route_key,
+                    (
+                        f"{row['origin']}"
+                        f"-"
+                        f"{row['destination']}"
+                    ),
 
                 "origin":
-                    route_data["origin"],
+                    row["origin"],
 
                 "destination":
-                    route_data[
-                        "destination"
-                    ],
+                    row["destination"],
 
                 "observations":
-                    len(fare_list),
+                    safe_int(
+                        row["observations"]
+                    ),
 
                 "average_fare":
                     round(
-                        route_average,
+                        average_fare,
                         2
                     ),
 
@@ -1926,44 +2247,12 @@ def get_airfare_index():
 
                 "change_percent":
                     round(
-                        route_change,
+                        route_index - 100,
                         2
                     )
 
             })
 
-
-        routes.sort(
-            key=lambda item:
-                item["index"],
-            reverse=True
-        )
-
-
-        # ====================================================
-        # INDEX LEVEL
-        # ====================================================
-
-        if current_index >= 105:
-
-            pressure = "HIGH"
-
-        elif current_index >= 102:
-
-            pressure = "ELEVATED"
-
-        elif current_index >= 98:
-
-            pressure = "STABLE"
-
-        else:
-
-            pressure = "LOW"
-
-
-        # ====================================================
-        # FINAL RESPONSE
-        # ====================================================
 
         return {
 
@@ -1983,11 +2272,570 @@ def get_airfare_index():
             "note":
                 (
                     "Prototype AIRWISE index. "
-                    "Not an official government CPI value."
+                    "It is not an official government "
+                    "CPI value."
                 ),
 
             "base_period":
-                base_period,
+                index_data[
+                    "base_period"
+                ],
+
+            "base_index":
+                100,
+
+            "base_average_fare":
+                index_data[
+                    "base_average_fare"
+                ],
+
+            "current_period":
+                index_data[
+                    "current_period"
+                ],
+
+            "current_average_fare":
+                index_data[
+                    "current_average_fare"
+                ],
+
+            "current_index":
+                index_data[
+                    "current_index"
+                ],
+
+            "change_percent":
+                index_data[
+                    "change_percent"
+                ],
+
+            "price_pressure":
+                index_data[
+                    "price_pressure"
+                ],
+
+            "observations":
+                index_data[
+                    "observations"
+                ],
+
+            "periods":
+                index_data[
+                    "periods"
+                ],
+
+            "history":
+                index_data[
+                    "history"
+                ],
+
+            "routes":
+                routes[:20]
+
+        }
+
+
+    except Exception as error:
+
+        print()
+        print(
+            "AIRFARE INDEX ERROR"
+        )
+
+        print(error)
+
+
+        raise HTTPException(
+            status_code=500,
+            detail=str(error)
+        )
+
+
+# ============================================================
+# HOURLY AIRFARE INDEX MOVEMENT
+# ============================================================
+#
+# Uses timestamped airfare_replay_observations.
+#
+# Provides:
+#   - Current replay index
+#   - 1 hour change
+#   - 2 hour change
+#   - 6 hour change
+#   - 24 hour change
+#   - Last update timestamp
+#   - Snapshot count
+#
+# DEMO / REPLAY mode only.
+#
+# ============================================================
+
+@app.get("/index/hourly")
+def get_hourly_index():
+
+    try:
+
+        print()
+        print("========================================")
+        print("AIRWISE HOURLY AIRFARE INDEX")
+        print("========================================")
+
+
+        # ----------------------------------------------------
+        # CHECK REPLAY TABLE
+        # ----------------------------------------------------
+
+        table_check = text("""
+            SELECT EXISTS (
+                SELECT 1
+                FROM information_schema.tables
+                WHERE table_name =
+                    'airfare_replay_observations'
+            ) AS table_exists
+        """)
+
+
+        with engine.connect() as connection:
+
+            table_result = (
+                connection
+                .execute(table_check)
+                .mappings()
+                .first()
+            )
+
+
+        if not table_result["table_exists"]:
+
+            return {
+
+                "status":
+                    "success",
+
+                "mode":
+                    "DEMO / REPLAY",
+
+                "message":
+                    (
+                        "Replay observation table "
+                        "does not exist yet."
+                    ),
+
+                "current_index":
+                    None,
+
+                "current_average_fare":
+                    None,
+
+                "last_updated":
+                    None,
+
+                "changes": {
+
+                    "last_1_hour":
+                        None,
+
+                    "last_2_hours":
+                        None,
+
+                    "last_6_hours":
+                        None,
+
+                    "last_24_hours":
+                        None
+
+                },
+
+                "snapshot_count":
+                    0,
+
+                "snapshots":
+                    []
+
+            }
+
+
+        # ----------------------------------------------------
+        # READ TIMESTAMPED REPLAY SNAPSHOTS
+        # ----------------------------------------------------
+
+        query = text("""
+            SELECT
+
+                snapshot_time,
+
+                AVG(total_fare)
+                    AS average_fare,
+
+                COUNT(*)
+                    AS observation_count
+
+            FROM airfare_replay_observations
+
+            WHERE
+                total_fare IS NOT NULL
+
+                AND total_fare > 0
+
+            GROUP BY
+                snapshot_time
+
+            ORDER BY
+                snapshot_time DESC
+        """)
+
+
+        with engine.connect() as connection:
+
+            rows = (
+                connection
+                .execute(query)
+                .mappings()
+                .all()
+            )
+
+
+        if not rows:
+
+            return {
+
+                "status":
+                    "success",
+
+                "mode":
+                    "DEMO / REPLAY",
+
+                "message":
+                    "No replay observations available yet.",
+
+                "current_index":
+                    None,
+
+                "current_average_fare":
+                    None,
+
+                "last_updated":
+                    None,
+
+                "changes": {
+
+                    "last_1_hour":
+                        None,
+
+                    "last_2_hours":
+                        None,
+
+                    "last_6_hours":
+                        None,
+
+                    "last_24_hours":
+                        None
+
+                },
+
+                "snapshot_count":
+                    0,
+
+                "snapshots":
+                    []
+
+            }
+
+
+        # ----------------------------------------------------
+        # BASE PERIOD
+        # ----------------------------------------------------
+        #
+        # Earliest replay snapshot = base.
+        # Base Index = 100.
+        #
+        # ----------------------------------------------------
+
+        base_average = safe_float(
+            rows[-1]["average_fare"]
+        )
+
+
+        if (
+            base_average is None
+            or base_average <= 0
+        ):
+
+            raise HTTPException(
+                status_code=500,
+                detail=(
+                    "Invalid base-period "
+                    "airfare average."
+                )
+            )
+
+
+        # ----------------------------------------------------
+        # BUILD INDEX SNAPSHOTS
+        # ----------------------------------------------------
+
+        snapshots = []
+
+
+        for row in rows:
+
+            average_fare = safe_float(
+                row["average_fare"]
+            )
+
+
+            if (
+                average_fare is None
+                or average_fare <= 0
+            ):
+
+                continue
+
+
+            index_value = (
+                average_fare
+                /
+                base_average
+            ) * 100
+
+
+            snapshot_time = row[
+                "snapshot_time"
+            ]
+
+
+            snapshots.append({
+
+                "timestamp":
+                    snapshot_time.isoformat(),
+
+                "average_fare":
+                    round(
+                        average_fare,
+                        2
+                    ),
+
+                "index":
+                    round(
+                        index_value,
+                        2
+                    ),
+
+                "observation_count":
+                    int(
+                        row[
+                            "observation_count"
+                        ]
+                    )
+
+            })
+
+
+        if not snapshots:
+
+            return {
+
+                "status":
+                    "success",
+
+                "mode":
+                    "DEMO / REPLAY",
+
+                "message":
+                    "No valid replay snapshots available.",
+
+                "current_index":
+                    None,
+
+                "current_average_fare":
+                    None,
+
+                "last_updated":
+                    None,
+
+                "changes": {
+
+                    "last_1_hour":
+                        None,
+
+                    "last_2_hours":
+                        None,
+
+                    "last_6_hours":
+                        None,
+
+                    "last_24_hours":
+                        None
+
+                },
+
+                "snapshot_count":
+                    0,
+
+                "snapshots":
+                    []
+
+            }
+
+
+        # ----------------------------------------------------
+        # CURRENT SNAPSHOT
+        # ----------------------------------------------------
+
+        current = snapshots[0]
+
+
+        current_index = safe_float(
+            current["index"]
+        )
+
+
+        # ----------------------------------------------------
+        # TIME-BASED CHANGE
+        # ----------------------------------------------------
+        #
+        # Find the closest available snapshot at or before
+        # the target timestamp. This is safer than assuming
+        # the SQL result always contains exactly one snapshot
+        # for every hour.
+        #
+        # ----------------------------------------------------
+
+        def calculate_change(hours):
+
+            if (
+                current_index is None
+                or current["timestamp"] is None
+            ):
+
+                return None
+
+
+            current_time = datetime.fromisoformat(
+                current["timestamp"]
+            )
+
+
+            target_time = (
+                current_time
+                -
+                __import__("datetime").timedelta(
+                    hours=hours
+                )
+            )
+
+
+            previous = None
+
+
+            for snapshot in snapshots[1:]:
+
+                snapshot_time = datetime.fromisoformat(
+                    snapshot["timestamp"]
+                )
+
+
+                if snapshot_time <= target_time:
+
+                    previous = snapshot
+
+                    break
+
+
+            if previous is None:
+
+                return None
+
+
+            previous_index = safe_float(
+                previous["index"]
+            )
+
+
+            if (
+                previous_index is None
+                or previous_index == 0
+            ):
+
+                return None
+
+
+            change = (
+
+                (
+                    current_index
+                    -
+                    previous_index
+                )
+
+                /
+                previous_index
+
+            ) * 100
+
+
+            return round(
+                change,
+                2
+            )
+
+
+        # ----------------------------------------------------
+        # CHANGES
+        # ----------------------------------------------------
+
+        changes = {
+
+            "last_1_hour":
+                calculate_change(1),
+
+            "last_2_hours":
+                calculate_change(2),
+
+            "last_6_hours":
+                calculate_change(6),
+
+            "last_24_hours":
+                calculate_change(24)
+
+        }
+
+
+        # ----------------------------------------------------
+        # PRICE PRESSURE
+        # ----------------------------------------------------
+
+        if current_index >= 105:
+
+            pressure = "HIGH"
+
+        elif current_index >= 102:
+
+            pressure = "ELEVATED"
+
+        elif current_index >= 98:
+
+            pressure = "STABLE"
+
+        else:
+
+            pressure = "LOW"
+
+
+        # ----------------------------------------------------
+        # RESPONSE
+        # ----------------------------------------------------
+
+        return {
+
+            "status":
+                "success",
+
+            "mode":
+                "DEMO / REPLAY",
+
+            "index_name":
+                "AIRWISE Airfare Price Index",
 
             "base_index":
                 100,
@@ -1998,41 +2846,32 @@ def get_airfare_index():
                     2
                 ),
 
-            "current_period":
-                current_period,
-
-            "current_average_fare":
-                round(
-                    current_average,
-                    2
-                ),
-
             "current_index":
                 round(
                     current_index,
                     2
                 ),
 
-            "change_percent":
+            "current_average_fare":
                 round(
-                    change_percent,
+                    current["average_fare"],
                     2
                 ),
+
+            "last_updated":
+                current["timestamp"],
 
             "price_pressure":
                 pressure,
 
-            "observations":
-                len(observations),
+            "changes":
+                changes,
 
-            "periods":
-                len(sorted_months),
+            "snapshot_count":
+                len(snapshots),
 
-            "history":
-                history,
-
-            "routes":
-                routes[:20]
+            "snapshots":
+                snapshots[:25]
 
         }
 
@@ -2045,8 +2884,73 @@ def get_airfare_index():
     except Exception as error:
 
         print()
-        print("AIRFARE INDEX ERROR")
+        print(
+            "HOURLY REPLAY INDEX ERROR"
+        )
+
         print(error)
+
+
+        raise HTTPException(
+            status_code=500,
+            detail=str(error)
+        )
+
+
+# ============================================================
+# CREATE SNAPSHOT NOW
+# ============================================================
+
+@app.post("/index/snapshot")
+def create_index_snapshot():
+
+    try:
+
+        result = (
+            save_airfare_index_snapshot()
+        )
+
+
+        if result is None:
+
+            return {
+
+                "status":
+                    "success",
+
+                "message":
+                    (
+                        "Snapshot was not created. "
+                        "It may already exist for "
+                        "the current hour."
+                    )
+
+            }
+
+
+        return {
+
+            "status":
+                "success",
+
+            "message":
+                "AIRWISE index snapshot created.",
+
+            "snapshot":
+                result
+
+        }
+
+
+    except Exception as error:
+
+        print()
+        print(
+            "SNAPSHOT CREATION ERROR"
+        )
+
+        print(error)
+
 
         raise HTTPException(
             status_code=500,
@@ -2085,6 +2989,8 @@ def get_info():
             "Dynamic Baseline",
 
             "Airfare Price Index",
+
+            "Hourly Index Snapshots",
 
             "Anomaly Detection",
 

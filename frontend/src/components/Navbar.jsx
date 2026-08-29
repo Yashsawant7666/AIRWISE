@@ -21,6 +21,7 @@ function Navbar() {
 
       <div className="airwise-nav-links">
 
+        {/* Dashboard */}
         <NavLink
           to="/"
           end
@@ -34,6 +35,7 @@ function Navbar() {
         </NavLink>
 
 
+        {/* Fare Search */}
         <NavLink
           to="/search"
           className={({ isActive }) =>
@@ -46,6 +48,20 @@ function Navbar() {
         </NavLink>
 
 
+        {/* CPI / Airfare Price Index */}
+        <NavLink
+          to="/airfare-index"
+          className={({ isActive }) =>
+            isActive
+              ? "nav-link active"
+              : "nav-link"
+          }
+        >
+          CPI
+        </NavLink>
+
+
+        {/* Compare */}
         <NavLink
           to="/compare"
           className={({ isActive }) =>
@@ -58,6 +74,7 @@ function Navbar() {
         </NavLink>
 
 
+        {/* Analytics */}
         <NavLink
           to="/analytics"
           className={({ isActive }) =>

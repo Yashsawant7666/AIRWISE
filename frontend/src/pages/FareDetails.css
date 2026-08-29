@@ -705,33 +705,75 @@
 }
 
 /* ============================================================
-   ANOMALY DETECTION
+   TREND
+============================================================ */
+
+.trend-section {
+  margin-bottom: 35px;
+}
+
+.trend-description,
+.anomaly-description {
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.6;
+  margin-top: -5px;
+  margin-bottom: 15px;
+}
+
+.trend-card,
+.anomaly-card,
+.anomaly-list {
+  background: white;
+  border-radius: 14px;
+  padding: 25px;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.04);
+}
+
+.trend-loading {
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+}
+
+
+/* ============================================================
+   ANOMALY
 ============================================================ */
 
 .anomaly-section {
   margin-bottom: 35px;
 }
 
-.anomaly-description {
-  margin-top: -5px;
-  margin-bottom: 15px;
-
-  color: #64748b;
-
-  font-size: 13px;
-
-  line-height: 1.6;
+.anomaly-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 20px;
 }
 
-.anomaly-card {
+.anomaly-summary-card {
   background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+}
 
-  padding: 25px;
+.anomaly-summary-card span {
+  display: block;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+}
 
-  border-radius: 14px;
-
-  box-shadow:
-    0 5px 18px rgba(0, 0, 0, 0.04);
+.anomaly-summary-card strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 22px;
 }
 
 .anomaly-chart {
@@ -739,59 +781,29 @@
 }
 
 .anomaly-empty {
-  min-height: 250px;
-
+  min-height: 280px;
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
   color: #64748b;
 }
 
-
-/* ============================================================
-   ANOMALY LIST
-============================================================ */
-
 .anomaly-list {
   margin-top: 20px;
-
-  background: white;
-
-  padding: 25px;
-
-  border-radius: 14px;
-
-  box-shadow:
-    0 5px 18px rgba(0, 0, 0, 0.04);
 }
 
 .anomaly-list h3 {
   margin-top: 0;
-
-  font-size: 19px;
+  margin-bottom: 15px;
 }
 
 .anomaly-item {
   display: grid;
-
-  grid-template-columns:
-    1.5fr
-    1fr
-    1fr
-    0.8fr
-    0.8fr;
-
+  grid-template-columns: 1.5fr 1fr 1fr 0.8fr 0.8fr;
   gap: 15px;
-
   align-items: center;
-
   padding: 16px 0;
-
-  border-bottom:
-    1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .anomaly-item:last-child {
@@ -800,58 +812,43 @@
 
 .anomaly-item strong {
   display: block;
-
   font-size: 14px;
 }
 
 .anomaly-item span {
   display: block;
-
   margin-top: 4px;
-
   color: #64748b;
-
   font-size: 11px;
 }
 
 .anomaly-label {
   display: inline-block !important;
-
   width: fit-content;
-
   padding: 6px 10px;
-
   border-radius: 20px;
-
   font-size: 10px !important;
-
   font-weight: 800;
-
   margin-top: 0 !important;
 }
 
 .anomaly-label.low {
   background: #fef3c7;
-
   color: #92400e;
 }
 
 .anomaly-label.medium {
   background: #ffedd5;
-
   color: #c2410c;
 }
 
 .anomaly-label.high {
   background: #fee2e2;
-
   color: #991b1b;
 }
 
 .no-anomalies {
   color: #64748b;
-
-  margin-bottom: 0;
 }
 
 
@@ -861,9 +858,12 @@
 
 @media (max-width: 800px) {
 
+  .anomaly-summary {
+    grid-template-columns: 1fr;
+  }
+
   .anomaly-item {
-    grid-template-columns:
-      1fr 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 
 }
@@ -871,8 +871,7 @@
 @media (max-width: 500px) {
 
   .anomaly-item {
-    grid-template-columns:
-      1fr;
+    grid-template-columns: 1fr;
   }
 
 }

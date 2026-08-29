@@ -90,6 +90,8 @@
 }
 
 .nav-link {
+  position: relative;
+
   padding: 9px 13px;
 
   border-radius: 7px;
@@ -102,16 +104,50 @@
 
   font-weight: 700;
 
-  transition: 0.2s;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .nav-link:hover {
   background: #f1f5f9;
 
   color: #14213d;
+
+  transform: translateY(-1px);
 }
 
 .nav-link.active {
+  background: #14213d;
+
+  color: white;
+
+  box-shadow:
+    0 4px 12px
+    rgba(20, 33, 61, 0.16);
+}
+
+
+/* ============================================================
+   CPI NAVIGATION
+   CPI is highlighted because it connects AIRWISE to the
+   Airfare Price Index / CPI Augmentation section.
+============================================================ */
+
+.airwise-nav-links .nav-link:nth-child(3) {
+  color: #2563eb;
+
+  font-weight: 900;
+}
+
+.airwise-nav-links .nav-link:nth-child(3):hover {
+  background: #eff6ff;
+
+  color: #1d4ed8;
+}
+
+.airwise-nav-links .nav-link:nth-child(3).active {
   background: #14213d;
 
   color: white;
@@ -119,8 +155,88 @@
 
 
 /* ============================================================
+   CPI SMALL INDICATOR
+============================================================ */
+
+.airwise-nav-links .nav-link:nth-child(3)::before {
+  content: "";
+
+  width: 5px;
+
+  height: 5px;
+
+  display: inline-block;
+
+  margin-right: 6px;
+
+  margin-bottom: 2px;
+
+  border-radius: 50%;
+
+  background: #2563eb;
+}
+
+.airwise-nav-links .nav-link:nth-child(3).active::before {
+  background: #ffffff;
+}
+
+
+/* ============================================================
+   ACTIVE UNDERLINE
+============================================================ */
+
+.nav-link:not(.active)::after {
+  content: "";
+
+  position: absolute;
+
+  left: 13px;
+
+  right: 13px;
+
+  bottom: 3px;
+
+  height: 2px;
+
+  border-radius: 2px;
+
+  background: #14213d;
+
+  transform: scaleX(0);
+
+  transform-origin: center;
+
+  transition:
+    transform 0.2s ease;
+}
+
+.nav-link:not(.active):hover::after {
+  transform: scaleX(1);
+}
+
+
+/* ============================================================
    RESPONSIVE
 ============================================================ */
+
+@media (max-width: 900px) {
+
+  .airwise-navbar {
+    padding: 0 4%;
+  }
+
+  .airwise-nav-links {
+    gap: 5px;
+  }
+
+  .nav-link {
+    font-size: 12px;
+
+    padding: 8px 10px;
+  }
+
+}
+
 
 @media (max-width: 700px) {
 
